@@ -853,17 +853,25 @@ gpsTimeFilter = function(las, from=0, to=1){
 #' @template param-las
 #' @template return-las
 #' @export
-tlsRotate = function(las){
+tlsRotate = function(las, manual = TRUE){
 
   isLAS(las)
 
-  ground = las@data[,c('X','Y','Z')] %>%
+  if (manual) {
+    tlsPlot(las)
+    f = select3d(button = "right", dev = cur3d())
+    rgl.close()
+    idx = las@data[,c('X','Y','Z')] %>% f()  
+    ground = las@data[,c('X','Y','Z')][idx]
+  
+  }else{
+    ground = las@data[,c('X','Y','Z')] %>%
     toLAS %>%
     classify_ground(csf(class_threshold = .2), F) %>%
     filter_poi(Classification == 2)
-
-  center = ground@data[,.(median(X), median(Y))] %>% as.double
-  ground = tlsCrop(ground, center[1], center[2], 5) %>% las2xyz
+    center = ground@data[,.(median(X), median(Y))] %>% as.double
+    ground = tlsCrop(ground, center[1], center[2], 5) %>% las2xyz
+  }
 
   az = planeAngle(ground, 'z')
   ax = planeAngle(ground, 'x')
@@ -874,6 +882,7 @@ tlsRotate = function(las){
 
   rot = rotationMatrix(0, rz, rx) %>% as.matrix
   xy_back = rotationMatrix(0,0,-rx) %>% as.matrix
+  flip_180 = rotationMatrix(pi,0,0) %>% as.matrix
 
   minXYZ = apply(las@data[,1:3], 2, min) %>% as.double
 
@@ -882,6 +891,12 @@ tlsRotate = function(las){
   las@data$Z = las@data$Z - minXYZ[3]
 
   las@data[,c('X','Y','Z')] = (las2xyz(las) %*% rot) %*% xy_back %>% as.data.table
+
+  if (manual) {
+    groundRotated = las@data[idx]
+    if (groundRotated[,.(mean(Z))] >=  las@data[,.(mean(Z))])
+  	las@data[,c('X','Y','Z')] = las2xyz(las) %*% flip_180%>% as.data.table
+  }
 
   las@data$X = las@data$X + minXYZ[1]
   las@data$Y = las@data$Y + minXYZ[2]
