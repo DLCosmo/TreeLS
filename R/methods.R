@@ -858,49 +858,49 @@ tlsRotate = function(las, manual = TRUE){
   isLAS(las)
 
   if (manual) {
-    tlsPlot(las)
-    f = select3d(button = "right", dev = cur3d())
-    rgl.close()
-    idx = las@data[,c('X','Y','Z')] %>% f()  
-    ground = las@data[,c('X','Y','Z')][idx]
-  
+    plot(las)
+    f <- select3d(button = "right", dev = cur3d())
+    close3d()
+    idx <- las@data[,c('X','Y','Z')] %>% f()
+    ground <- las@data[,c('X','Y','Z')][idx]
+
   }else{
     ground = las@data[,c('X','Y','Z')] %>%
-    toLAS %>%
-    classify_ground(csf(class_threshold = .2), F) %>%
-    filter_poi(Classification == 2)
-    center = ground@data[,.(median(X), median(Y))] %>% as.double
-    ground = tlsCrop(ground, center[1], center[2], 5) %>% las2xyz
+      toLAS %>%
+      classify_ground(csf(class_threshold = .2), F) %>%
+      filter_poi(Classification == 2)
+    center <- ground@data[,.(median(X), median(Y))] %>% as.double
+    ground <- tlsCrop(ground, center[1], center[2], 5) %>% las2xyz
   }
 
-  az = planeAngle(ground, 'z')
-  ax = planeAngle(ground, 'x')
-  ay = planeAngle(ground, 'y')
+  az <- planeAngle(ground, 'z')
+  ax <- planeAngle(ground, 'x')
+  ay <- planeAngle(ground, 'y')
 
-  rz = ifelse(az > pi/2, pi-az, -az)
-  rx = ifelse(ay < pi/2, -ax, ax)
+  rz <- ifelse(az > pi/2, pi-az, -az)
+  rx <- ifelse(ay < pi/2, -ax, ax)
 
-  rot = rotationMatrix(0, rz, rx) %>% as.matrix
-  xy_back = rotationMatrix(0,0,-rx) %>% as.matrix
-  flip_180 = rotationMatrix(pi,0,0) %>% as.matrix
+  rot <- rotationMatrix(0, rz, rx) %>% as.matrix
+  xy_back <- rotationMatrix(0,0,-rx) %>% as.matrix
+  flip_180 <- rotationMatrix(pi,0,0) %>% as.matrix
 
-  minXYZ = apply(las@data[,1:3], 2, min) %>% as.double
+  minXYZ <- apply(las@data[,1:3], 2, min) %>% as.double
 
-  las@data$X = las@data$X - minXYZ[1]
-  las@data$Y = las@data$Y - minXYZ[2]
-  las@data$Z = las@data$Z - minXYZ[3]
+  las@data$X <- las@data$X - minXYZ[1]
+  las@data$Y <- las@data$Y - minXYZ[2]
+  las@data$Z <- las@data$Z - minXYZ[3]
 
   las@data[,c('X','Y','Z')] = (las2xyz(las) %*% rot) %*% xy_back %>% as.data.table
 
   if (manual) {
     groundRotated = las@data[idx]
     if (groundRotated[,.(mean(Z))] >=  las@data[,.(mean(Z))])
-  	las@data[,c('X','Y','Z')] = las2xyz(las) %*% flip_180%>% as.data.table
+      las@data[,c('X','Y','Z')] = las2xyz(las) %*% flip_180%>% as.data.table
   }
 
-  las@data$X = las@data$X + minXYZ[1]
-  las@data$Y = las@data$Y + minXYZ[2]
-  las@data$Z = las@data$Z + minXYZ[3]
+  las@data$X <- las@data$X + minXYZ[1]
+  las@data$Y <- las@data$Y + minXYZ[2]
+  las@data$Z <- las@data$Z + minXYZ[3]
 
   return(las)
 }
@@ -1289,7 +1289,7 @@ tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
 
   h_plot = function(las){
     colors = set.colors(las$Z, lidR::height.colors(50))
-    rgl.points(las %>% las2xyz, color=colors, size=pt_cex)
+    points3d(las %>% las2xyz, color=colors, size=pt_cex)
   }
 
   open3d()
