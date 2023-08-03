@@ -57,17 +57,17 @@
 #' @template reference-thesis
 #' @template example-tree-map
 #' @export
-map.hough = function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max_d = 0.5, min_density = 0.1, min_votes = 3){
+map.hough <- function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max_d = 0.5, min_density = 0.1, min_votes = 3){
 
   if(max_h <= min_h)
     stop('max_h must be larger than min_h')
 
-  params = list(
-    h_step = h_step,
-    pixel_size = pixel_size,
-    max_d = max_d,
-    min_density = min_density,
-    min_votes = min_votes
+  params <- list(
+    h_step <- h_step,
+    pixel_size <- pixel_size,
+    max_d <- max_d,
+    min_density <- min_density,
+    min_votes <- min_votes
   )
 
   for(i in names(params)){
@@ -86,9 +86,9 @@ map.hough = function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max
   if(min_density > 1)
     stop('min_density must be between 0 and 1')
 
-  func = function(las){
+  func <- function(las){
 
-    rgz = las$Z %>% range
+    rgz <- las$Z %>% range
 
     if(max_h < rgz[1])
       stop('hmax is too low - below the point cloud')
@@ -96,7 +96,7 @@ map.hough = function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max
     if(min_h > rgz[2])
       stop('hmin is too high - above the point cloud')
 
-    map = stackMap(las %>% las2xyz, min_h, max_h, h_step, pixel_size, max_d/2, min_density, min_votes) %>%
+    map <- stackMap(las %>% las2xyz, min_h, max_h, h_step, pixel_size, max_d/2, min_density, min_votes) %>%
       do.call(what=cbind) %>% as.data.table
 
     if(nrow(map) == 0)
@@ -106,7 +106,7 @@ map.hough = function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max
     map$Keypoint_flag %<>% as.logical
     map$PointSourceID %<>% as.integer
     map$TreePosition %<>% as.logical
-    map = suppressMessages(map %>% LAS %>% setHeaderTLS %>% setAttribute('tree_map'))
+    map <- suppressMessages(map %>% LAS %>% setHeaderTLS %>% setAttribute('tree_map'))
 
     return(map)
   }
@@ -130,14 +130,14 @@ map.hough = function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, max
 #' point cloud are described in \code{\link{fastPointMetrics}}.
 #' @template section-eigen-decomposition
 #' @export
-map.eigen.knn = function(max_curvature = .1, max_verticality = 10, max_mean_dist = .1, max_d = .5, min_h = 1.5, max_h = 3){
+map.eigen.knn <- function(max_curvature = .1, max_verticality = 10, max_mean_dist = .1, max_d = .5, min_h = 1.5, max_h = 3){
 
-  params = list(
-    max_curvature = max_curvature,
-    max_verticality = max_verticality,
-    max_d = max_d,
-    min_h = min_h,
-    max_h = max_h
+  params <- list(
+    max_curvature <- max_curvature,
+    max_verticality <- max_verticality,
+    max_d <- max_d,
+    min_h <- min_h,
+    max_h <- max_h
   )
 
   for(i in names(params)){
@@ -161,38 +161,38 @@ map.eigen.knn = function(max_curvature = .1, max_verticality = 10, max_mean_dist
     stop('max_verticality must be a number between 0 and 180')
   }
 
-  func = function(las){
-    las = filter_poi(las, Classification != 2 & Z > min_h & Z < max_h)
+  func <- function(las){
+    las <- filter_poi(las, Classification != 2 & Z > min_h & Z < max_h)
 
     if(lidR::is.empty(las)){
       stop('no points found in the specified min_h/max_h range')
     }
 
-    mtrlst = c('Curvature', 'Verticality', 'MeanDist')
+    mtrlst <- c('Curvature', 'Verticality', 'MeanDist')
 
-    check_pt_metrics = mtrlst %>% sapply(function(x) hasField(las, x)) %>% as.logical %>% all
+    check_pt_metrics <- mtrlst %>% sapply(function(x) hasField(las, x)) %>% as.logical %>% all
     if(!check_pt_metrics){
       message('Calculating knn fastPointMetrics')
-      las = fastPointMetrics(las, ptm.knn(), mtrlst)
+      las <- fastPointMetrics(las, ptm.knn(), mtrlst)
     }
 
-    f3d = nrow(las@data) / (area(las) * abs(diff(range(las$Z))))
-    n1 = ceiling(f3d * (.1^3) * 3) + 1
-    n2 = ceiling(f3d * (.25^3) * 3) + 1
+    f3d <- nrow(las@data) / (area(las) * abs(diff(range(las$Z))))
+    n1 <- ceiling(f3d * (.1^3) * 3) + 1
+    n2 <- ceiling(f3d * (.25^3) * 3) + 1
 
-    md = 20/f3d
+    md <- 20/f3d
     if(md > max_mean_dist) max_mean_dist = md
 
-    las = filter_poi(las, Curvature < max_curvature & abs(Verticality - 90) < max_verticality & MeanDist < max_mean_dist)
+    las <- filter_poi(las, Curvature < max_curvature & abs(Verticality - 90) < max_verticality & MeanDist < max_mean_dist)
     if(is.empty(las)) stop('map.eigen.knn parameters too restrictive, try increasing some of them.')
     las %<>% nnFilter(.1, n1)
     if(is.empty(las)) stop('map.eigen.knn parameters too restrictive, try increasing some of them.')
     las %<>% nnFilter(.25, n2)
     if(is.empty(las)) stop('map.eigen.knn parameters too restrictive, try increasing some of them.')
 
-    las@data$TreeID = 0
-    maxdst = max_d*2
-    i = 1
+    las@data$TreeID <- 0
+    maxdst <- max_d*2
+    i <- 1
     while(any(las@data$TreeID == 0)){
       xy = las@data[TreeID == 0,.(X,Y)][1,] %>% as.double
       dst = las@data[,sqrt( (X-xy[1])^2 + (Y-xy[2])^2 )] %>% as.double
@@ -228,15 +228,15 @@ map.eigen.knn = function(max_curvature = .1, max_verticality = 10, max_mean_dist
 #' point cloud are described in \code{\link{fastPointMetrics}}.
 #' @template section-eigen-decomposition
 #' @export
-map.eigen.voxel = function(max_curvature = .15, max_verticality = 15, voxel_spacing = .1, max_d = .5, min_h = 1.5, max_h = 3){
+map.eigen.voxel <- function(max_curvature = .15, max_verticality = 15, voxel_spacing = .1, max_d = .5, min_h = 1.5, max_h = 3){
 
-  params = list(
-    max_curvature = max_curvature,
-    max_verticality = max_verticality,
-    voxel_spacing = voxel_spacing,
-    max_d = max_d,
-    min_h = min_h,
-    max_h = max_h
+  params <- list(
+    max_curvature <- max_curvature,
+    max_verticality <- max_verticality,
+    voxel_spacing <- voxel_spacing,
+    max_d <- max_d,
+    min_h <- min_h,
+    max_h <- max_h
   )
 
   for(i in names(params)){
@@ -260,34 +260,34 @@ map.eigen.voxel = function(max_curvature = .15, max_verticality = 15, voxel_spac
     stop('max_verticality must be a number between 0 and 180')
   }
 
-  func = function(las){
-    las = filter_poi(las, Classification != 2 & Z > min_h & Z < max_h)
+  func <- function(las){
+    las <- filter_poi(las, Classification != 2 & Z > min_h & Z < max_h)
 
     if(lidR::is.empty(las)){
       stop('no points found in the specified min_h/max_h range')
     }
 
-    mtrlst = c('N', 'Curvature', 'Verticality')
-    check_pt_metrics = c(mtrlst, 'VoxelID') %>% sapply(function(x) hasField(las, x)) %>% as.logical %>% all
+    mtrlst <- c('N', 'Curvature', 'Verticality')
+    check_pt_metrics <- c(mtrlst, 'VoxelID') %>% sapply(function(x) hasField(las, x)) %>% as.logical %>% all
     if(!check_pt_metrics){
       message('Calculating voxel fastPointMetrics')
-      las = fastPointMetrics(las, ptm.voxel(voxel_spacing), mtrlst)
+      las <- fastPointMetrics(las, ptm.voxel(voxel_spacing), mtrlst)
     }
 
-    f3d = nrow(las@data) / (area(las) * abs(diff(range(las$Z))))
-    n1 = ceiling(f3d * (.1^3) * 3) + 1
-    n2 = ceiling(f3d * (.25^3) * 3) + 1
+    f3d <- nrow(las@data) / (area(las) * abs(diff(range(las$Z))))
+    n1 <- ceiling(f3d * (.1^3) * 3) + 1
+    n2 <- ceiling(f3d * (.25^3) * 3) + 1
 
-    las = filter_poi(las, N > 3 & Curvature < max_curvature & abs(Verticality - 90) < max_verticality)
+    las <- filter_poi(las, N > 3 & Curvature < max_curvature & abs(Verticality - 90) < max_verticality)
     if(is.empty(las)) stop('map.eigen.voxel parameters too restrictive, try increasing some of them.')
     las %<>% nnFilter(.1, n1)
     if(is.empty(las)) stop('map.eigen.voxel parameters too restrictive, try increasing some of them.')
     las %<>% nnFilter(.25, n2)
     if(is.empty(las)) stop('map.eigen.voxel parameters too restrictive, try increasing some of them.')
 
-    las@data$TreeID = 0
-    maxdst = max_d*2
-    i = 1
+    las@data$TreeID <- 0
+    maxdst <- max_d*2
+    i <- 1
     while(any(las@data$TreeID == 0)){
       xy = las@data[TreeID == 0,.(X,Y)][1,] %>% as.double
       dst = las@data[,sqrt( (X-xy[1])^2 + (Y-xy[2])^2 )] %>% as.double
@@ -316,7 +316,7 @@ map.eigen.voxel = function(max_curvature = .15, max_verticality = 15, voxel_spac
 #' @template param-min_h-max_h
 #' @param bg background color for the rgl plot.
 #' @export
-map.pick = function(map = NULL, min_h=1, max_h=5, bg='gray50'){
+map.pick <- function(map = NULL, min_h=1, max_h=5, bg='gray50'){
 
   if(min_h >= max_h){
     stop('max_h must be larger than min_h')
@@ -324,7 +324,7 @@ map.pick = function(map = NULL, min_h=1, max_h=5, bg='gray50'){
 
   if(!is.null(map)){
     if(hasAttribute(map, 'tree_map_dt')){
-      # map = map
+      # map <- map
     }else if(hasAttribute(map, 'tree_map')){
       map %<>% treeMap.positions(F)
     }else{
@@ -332,9 +332,9 @@ map.pick = function(map = NULL, min_h=1, max_h=5, bg='gray50'){
     }
   }
 
-  func = function(las){
+  func <- function(las){
 
-    rgz = las$Z %>% range
+    rgz <- las$Z %>% range
 
     if(max_h < rgz[1])
       stop('hmax is too low - below the point cloud')
@@ -343,11 +343,11 @@ map.pick = function(map = NULL, min_h=1, max_h=5, bg='gray50'){
       stop('hmin is too high - above the point cloud')
 
     if(!is.null(min_h)){
-      las = filter_poi(las, Z > min_h)
+      las <- filter_poi(las, Z > min_h)
     }
 
     if(!is.null(max_h)){
-      las = filter_poi(las, Z < max_h)
+      las <- filter_poi(las, Z < max_h)
     }
 
     if(lidR::is.empty(las)){
@@ -363,20 +363,20 @@ map.pick = function(map = NULL, min_h=1, max_h=5, bg='gray50'){
     }
 
     axes3d(col='white')
-    pts = las@data %$% identify3d(X, Y, Z, tolerance = 50)
+    pts <- las@data %$% identify3d(X, Y, Z, tolerance = 50)
 
     if(length(pts) == 0) return(map)
 
-    ids = 1:length(pts)
+    ids <- 1:length(pts)
     if(!is.null(map)){
-      ids = ids + max(map$TreeID)
+      ids <- ids + max(map$TreeID)
     }
 
     tmap = data.table(ids, las@data$X[pts], las@data$Y[pts]) # %>% toLAS(c('X','Y','TreeID'))
     names(tmap) = c('TreeID', 'X','Y')
 
     if(!is.null(map)){
-      tmap = rbind(map, tmap)
+      tmap <- rbind(map, tmap)
     }
 
     tmap %<>% setAttribute('tree_map_dt')

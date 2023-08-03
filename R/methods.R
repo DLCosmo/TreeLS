@@ -26,15 +26,15 @@
 #' @import deldir
 #' @import nabor
 #' @import glue
-#' @useDynLib TreeLS, .registration = TRUE
+#' @useDynLib TreeLS, .registration <- TRUE
 
 utils::globalVariables(c("."))
 
-X = Y = Z = Classification = TreePosition = TreeID = Stem = Segment = gpstime = AvgHeight = Radius = N = Curvature = Verticality = MeanDist = PX = PY = PZ = h_radius = PointID = VoxelID = StemID = EigenVector13 = EigenVector23 = EigenVector33 = Votes = absRatio = clt = r = v = x = y = NULL
+X <- Y <- Z <- Classification <- TreePosition <- TreeID <- Stem <- Segment <- gpstime <- AvgHeight <- Radius <- N <- Curvature <- Verticality <- MeanDist <- PX <- PY <- PZ <- h_radius <- PointID <- VoxelID <- StemID <- EigenVector13 <- EigenVector23 <- EigenVector33 <- Votes <- absRatio <- clt <- r <- v <- x <- y <- NULL
 
-TLS_MARKER = 'TLS_MARKER'
+TLS_MARKER <- 'TLS_MARKER'
 
-DEFAULT_LASATTRIBUTES = c(
+DEFAULT_LASATTRIBUTES <- c(
   "X",
   "Y",
   "Z",
@@ -60,57 +60,57 @@ DEFAULT_LASATTRIBUTES = c(
   "B"
 )
 
-isLAS = function(las){
+isLAS <- function(las){
   if(class(las)[1] != 'LAS')
     stop('input data must be a LAS object - checkout ?setTLS')
 }
 
-setAttribute = function(obj, attribute_name){
+setAttribute <- function(obj, attribute_name){
   attr(obj, TLS_MARKER) = attribute_name
   return(obj)
 }
 
-hasAttribute = function(obj, attribute_name){
-  tlsatt = attr(obj, TLS_MARKER)
-  bool = is.null(tlsatt) || tlsatt != attribute_name
+hasAttribute <- function(obj, attribute_name){
+  tlsatt <- attr(obj, TLS_MARKER)
+  bool <- is.null(tlsatt) || tlsatt != attribute_name
   return(!bool)
 }
 
-plot.cylinder = function(x_center = 0, y_center = 0, h_bottom = 0, h_top = 1, radius = 0.5, color = 'yellow'){
+plot.cylinder <- function(x_center = 0, y_center = 0, h_bottom = 0, h_top = 1, radius = 0.5, color = 'yellow'){
 
-  axis = matrix(c(
+  axis <- matrix(c(
     rep(x_center, 2),
     rep(y_center, 2),
     seq(h_bottom, h_top, length.out = 2)
-  ), ncol = 3, byrow = F)
+  ), ncol <- 3, byrow <- F)
 
-  cyl = cylinder3d(axis, radius = radius)
+  cyl <- cylinder3d(axis, radius = radius)
 
-  mesh = shade3d(addNormals(subdivision3d(cyl, depth = 0)), col = color)
-  # mesh = shade3d(cyl, col=col)
+  mesh <- shade3d(addNormals(subdivision3d(cyl, depth = 0)), col = color)
+  # mesh <- shade3d(cyl, col=col)
 }
 
 #' @importFrom utils head
-preCheck = function(las){
+preCheck <- function(las){
 
   isLAS(las)
 
-  has_class = "Classification" %in% names(las@data)
+  has_class <- "Classification" %in% names(las@data)
 
   if(!has_class){
     message('no Classification field found in the dataset')
 
   }else{
 
-    has_ground = any(las$Classification == 2)
+    has_ground <- any(las$Classification == 2)
 
     if(has_ground){
       mean_ground = las$Z[ las$Classification == 2 ] %>% mean(na.rm=T) %>% abs
       if(mean_ground > 0.2)
         message("point cloud apparently not normalized")
     } else {
-      n = ifelse(nrow(las@data) > 1000, 1000, nrow(las@data))
-      mean_ground = las$Z %>% sort %>% head(n) %>% median %>% abs
+      n <- ifelse(nrow(las@data) > 1000, 1000, nrow(las@data))
+      mean_ground <- las$Z %>% sort %>% head(n) %>% median %>% abs
       if(mean_ground > 1)
         message("point cloud apparently not normalized")
     }
@@ -119,12 +119,12 @@ preCheck = function(las){
 }
 
 #' @importFrom benchmarkme get_ram
-sizeCheck = function(las, n_new_fields, bytes=8){
-  n = nrow(las@data)
+sizeCheck <- function(las, n_new_fields, bytes=8){
+  n <- nrow(las@data)
   mem = sum(gc(full=TRUE)[,2])
-  ram = as.double(get_ram()) / 1000000
-  malloc = n * n_new_fields * bytes / 1000000
-  can_malloc = ram - mem - malloc
+  ram <- as.double(get_ram()) / 1000000
+  malloc <- n * n_new_fields * bytes / 1000000
+  can_malloc <- ram - mem - malloc
   if(can_malloc < 0){
     paste('adding', n_new_fields, 'columns to the las object is not possible - not enough RAM available') %>% stop
   }else if((can_malloc / ram) < 0.1){
@@ -132,7 +132,7 @@ sizeCheck = function(las, n_new_fields, bytes=8){
   }
 }
 
-toLAS = function(data_matrix, column_names=NULL){
+toLAS <- function(data_matrix, column_names=NULL){
 
   if(ncol(data_matrix) < 3)
     stop('data_matrix must have at least 3 columns')
@@ -144,7 +144,7 @@ toLAS = function(data_matrix, column_names=NULL){
     if(length(column_names) != ncol(data_matrix))
       stop('data_matrix must have the same number of columns as in column_names')
 
-    checkXYZ = c('X', 'Y', 'Z') %in% column_names
+    checkXYZ <- c('X', 'Y', 'Z') %in% column_names
 
     if(!all(checkXYZ))
       stop('X, Y and Z must be declared explicitly in column_names (in uppercase)')
@@ -161,11 +161,11 @@ toLAS = function(data_matrix, column_names=NULL){
 
   }
 
-  data_matrix = suppressMessages(data_matrix %>% LAS %>% setHeaderTLS)
+  data_matrix <- suppressMessages(data_matrix %>% LAS %>% setHeaderTLS)
   return(data_matrix)
 }
 
-las2xyz = function(las){
+las2xyz <- function(las){
 
   if(class(las)[1] != "LAS")
     stop("las must be a LAS object")
@@ -174,60 +174,60 @@ las2xyz = function(las){
   return(las)
 }
 
-hasField = function(las, field_name){
+hasField <- function(las, field_name){
   if(class(las)[1] == 'LAS') las = las@data
   any(colnames(las) == field_name) %>% return()
 }
 
-cleanFields = function(las, field_names){
+cleanFields <- function(las, field_names){
   is_las = class(las)[1] == 'LAS'
   for(i in field_names){
     temp = if(is_las) las@data[,i,with=F] else las[,i,with=F]
-    temp = unlist(temp)
+    temp <- unlist(temp)
     temp[is.na(temp) | is.nan(temp) | is.infinite(temp) | is.null(temp)] = ifelse(is.logical(temp), F, 0)
     if(is_las) las@data[,i] = temp else las[,i] = temp
   }
   return(las)
 }
 
-setHeaderTLS = function(las, x_scale = 0.0001, y_scale = 0.0001, z_scale = 0.0001){
+setHeaderTLS <- function(las, x_scale = 0.0001, y_scale = 0.0001, z_scale = 0.0001){
 
   if(class(las)[1] != "LAS")
     stop("las must be a LAS object")
 
   if(las@header@PHB$`X scale factor` < x_scale)
-    x_scale = las@header@PHB$`X scale factor`
+    x_scale <- las@header@PHB$`X scale factor`
 
   if(las@header@PHB$`Y scale factor` < y_scale)
-    y_scale = las@header@PHB$`Y scale factor`
+    y_scale <- las@header@PHB$`Y scale factor`
 
   if(las@header@PHB$`Z scale factor` < z_scale)
-    z_scale = las@header@PHB$`Z scale factor`
+    z_scale <- las@header@PHB$`Z scale factor`
 
   return(suppressMessages(las_rescale(las, x_scale, y_scale, z_scale)))
 }
 
 #' @importFrom stats runif
-tlsCylinder = function(n=10000, h=100, radius=30, deviation=0){
+tlsCylinder <- function(n=10000, h=100, radius=30, deviation=0){
 
-  radius = runif(n, radius-deviation, radius+deviation)
+  radius <- runif(n, radius-deviation, radius+deviation)
 
   z=runif(n = n, min = 0, max = h)
 
-  angs = runif(n, 0, 2*pi)
-  x = sin(angs)*radius
-  y = cos(angs)*radius
+  angs <- runif(n, 0, 2*pi)
+  x <- sin(angs)*radius
+  y <- cos(angs)*radius
 
   return(cbind(x,y,z) %>% toLAS)
 }
 
 #' @importFrom stats cov
-planeAngle = function(xyz, axis='z'){
+planeAngle <- function(xyz, axis='z'){
 
-  e = eigen(cov(xyz))
+  e <- eigen(cov(xyz))
   if(axis != 'z') e$vectors[3,3] = 0
 
-  global_axis = if(axis == 'z') c(0,0,1) else if(axis=='x') c(1,0,0) else c(0,1,0)
+  global_axis <- if(axis == 'z') c(0,0,1) else if(axis=='x') c(1,0,0) else c(0,1,0)
 
   angle = (( e$vectors[,3] %*% global_axis ) / ( sqrt(sum(e$vectors[,3]^2)) * sqrt(sum(global_axis^2)) )) %>%
     as.double %>% acos
@@ -235,39 +235,39 @@ planeAngle = function(xyz, axis='z'){
   return(angle)
 }
 
-rotationMatrix = function (ax, ay, az){
+rotationMatrix <- function (ax, ay, az){
 
-  Rx = matrix(c(1, 0, 0, 0, cos(ax), sin(ax), 0, -sin(ax), cos(ax)), ncol = 3, byrow = T)
-  Ry = matrix(c(cos(ay), 0, -sin(ay), 0, 1, 0, sin(ay), 0, cos(ay)), ncol = 3, byrow = T)
-  Rz = matrix(c(cos(az), sin(az), 0, -sin(az), cos(az), 0, 0, 0, 1), ncol = 3, byrow = T)
+  Rx <- matrix(c(1, 0, 0, 0, cos(ax), sin(ax), 0, -sin(ax), cos(ax)), ncol = 3, byrow = T)
+  Ry <- matrix(c(cos(ay), 0, -sin(ay), 0, 1, 0, sin(ay), 0, cos(ay)), ncol = 3, byrow = T)
+  Rz <- matrix(c(cos(az), sin(az), 0, -sin(az), cos(az), 0, 0, 0, 1), ncol = 3, byrow = T)
 
-  mat = Rz %*% Ry %*% Rx
+  mat <- Rz %*% Ry %*% Rx
 
   return(mat)
 }
 
-tfMatrix = function(ax, ay, az, x, y, z){
+tfMatrix <- function(ax, ay, az, x, y, z){
 
-  mat = rotationMatrix(ax, ay, az) %>%
+  mat <- rotationMatrix(ax, ay, az) %>%
     rbind(0) %>% cbind(c(x,y,z,1))
 
   return(mat)
 }
 
-rangeMeans = function(X,Y,Z){
-  meds = apply(cbind(X,Y,Z), 2, function(x) sum(range(x))/2) %>% t %>% as.data.table
+rangeMeans <- function(X,Y,Z){
+  meds <- apply(cbind(X,Y,Z), 2, function(x) sum(range(x))/2) %>% t %>% as.data.table
   names(meds) = c('PX','PY','PZ')
   return(meds)
 }
 
-splitByIndex = function(las, var='Z', max_size = 1E6){
+splitByIndex <- function(las, var='Z', max_size = 1E6){
 
-  npts = nrow(las@data)
-  zclass = 0
+  npts <- nrow(las@data)
+  zclass <- 0
 
   if(npts > max_size){
-    nparts = ceiling(npts/max_size)
-    probs = seq(0, 1, by = 1/nparts)
+    nparts <- ceiling(npts/max_size)
+    probs <- seq(0, 1, by = 1/nparts)
     probs = probs[probs > 0 & probs < 1]
     zqts = quantile(las[[var]], probs) %>% as.double
     hs = c(min(las[[var]])-1, zqts, max(las$Z)+1)
@@ -284,16 +284,16 @@ splitByIndex = function(las, var='Z', max_size = 1E6){
 #' @template param-colnames
 #' @template return-las
 #' @examples
-#' cloud = matrix(runif(300, 0, 10), ncol=3)
-#' cloud = setTLS(cloud)
+#' cloud <- matrix(runif(300, 0, 10), ncol=3)
+#' cloud <- setTLS(cloud)
 #' summary(cloud)
 #' @export
-setTLS = function(cloud, col_names=NULL){
+setTLS <- function(cloud, col_names=NULL){
 
   if(class(cloud)[1] == 'LAS'){
-    cloud = setHeaderTLS(cloud)
+    cloud <- setHeaderTLS(cloud)
   }else{
-    cloud = toLAS(cloud, col_names)
+    cloud <- toLAS(cloud, col_names)
   }
 
   return(cloud)
@@ -307,29 +307,29 @@ setTLS = function(cloud, col_names=NULL){
 #' @param ... further arguments passed down to \code{readLAS}, \code{read.las} or \code{fread}.
 #' @template return-las
 #' @examples
-#' cloud = matrix(runif(300), ncol=3)
-#' file = tempfile(fileext = '.txt')
+#' cloud <- matrix(runif(300), ncol=3)
+#' file <- tempfile(fileext = '.txt')
 #' fwrite(cloud, file)
-#' tls = readTLS(file)
+#' tls <- readTLS(file)
 #' summary(tls)
 #' @importFrom rlas read.las
 #' @importFrom data.table fread
 #' @export
-readTLS = function(file, col_names=NULL, ...){
+readTLS <- function(file, col_names=NULL, ...){
 
-  format = sub('.+\\.(.+$)', '\\1', file) %>% tolower
+  format <- sub('.+\\.(.+$)', '\\1', file) %>% tolower
 
   if(format %in% c('laz', 'las')){
 
-    las = readLAS(file, ...) %>% setHeaderTLS
+    las <- readLAS(file, ...) %>% setHeaderTLS
 
   }else if(format == 'ply'){
 
-    las = LAS(read.las(file, ...)) %>% setHeaderTLS
+    las <- LAS(read.las(file, ...)) %>% setHeaderTLS
 
   }else{
 
-    las = fread(file, ...) %>% toLAS(col_names)
+    las <- fread(file, ...) %>% toLAS(col_names)
 
   }
 
@@ -346,26 +346,26 @@ readTLS = function(file, col_names=NULL, ...){
 #' \code{\link[lidR:LAS]{the standard LAS attributes}} are added to the file.
 #' @param index \code{logical} - write lax file also.
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file) %>% fastPointMetrics#'
-#' tls_file = tempfile(fileext = '.laz')
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file) %>% fastPointMetrics#'
+#' tls_file <- tempfile(fileext = '.laz')
 #' writeTLS(tls, tls_file)
 #'
-#' up_tls = readTLS(tls_file)
+#' up_tls <- readTLS(tls_file)
 #' summary(up_tls)
 #' @export
-writeTLS = function(las, file, col_names=NULL, index=FALSE){
+writeTLS <- function(las, file, col_names=NULL, index=FALSE){
 
   isLAS(las)
 
-  fields = names(las@data)
+  fields <- names(las@data)
   fields = fields[!(fields %in% DEFAULT_LASATTRIBUTES)]
 
   if(!is.null(col_names)){
     if(!all(col_names %in% names(las@data))){
       stop("col_names must have only names that exist in las")
     }
-    fields = col_names
+    fields <- col_names
   }
 
   for(f in fields){
@@ -383,15 +383,15 @@ writeTLS = function(las, file, col_names=NULL, index=FALSE){
 #' @param n \code{numeric} - number of neighbors within \code{d} distance a point must have to be kept in the output.
 #' @template return-las
 #' @examples
-#' file = system.file("extdata", "spruce.laz", package="TreeLS")
-#' tls = readTLS(file)
+#' file <- system.file("extdata", "spruce.laz", package="TreeLS")
+#' tls <- readTLS(file)
 #' nrow(tls@data)
 #'
-#' nn_tls = nnFilter(tls, 0.05, 3)
+#' nn_tls <- nnFilter(tls, 0.05, 3)
 #' nrow(nn_tls@data)
 #' @importFrom nabor knn
 #' @export
-nnFilter = function(las, d = 0.05, n = 2){
+nnFilter <- function(las, d = 0.05, n = 2){
 
   isLAS(las)
 
@@ -405,12 +405,12 @@ nnFilter = function(las, d = 0.05, n = 2){
 
   rnn = knn(las %>% las2xyz, k = n+1)$nn.dists[,-1]
 
-  keep = rep(T, nrow(las@data))
+  keep <- rep(T, nrow(las@data))
   for(i in 1:ncol(rnn)){
     keep = keep & rnn[,i] < d
   }
 
-  las = filter_poi(las, keep)
+  las <- filter_poi(las, keep)
   return(las)
 }
 
@@ -421,20 +421,20 @@ nnFilter = function(las, d = 0.05, n = 2){
 #' @param method point sampling algorithm. Currently available: \code{\link{smp.voxelize}} and \code{\link{smp.randomize}}
 #' @template return-las
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file)
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file)
 #' nrow(tls@data)
 #'
 #' ### sample points systematically from a 3D voxel grid
-#' vx = tlsSample(tls, smp.voxelize(0.05))
+#' vx <- tlsSample(tls, smp.voxelize(0.05))
 #' nrow(vx@data)
 #'
 #' ### sample half of the points randomly
-#' rd = tlsSample(tls, smp.randomize(0.5))
+#' rd <- tlsSample(tls, smp.randomize(0.5))
 #' nrow(rd@data)
 #'
 #' @export
-tlsSample = function(las, method = smp.voxelize()){
+tlsSample <- function(las, method = smp.voxelize()){
 
   isLAS(las)
 
@@ -451,21 +451,21 @@ tlsSample = function(las, method = smp.voxelize()){
 #' @description Returns a cropped point cloud of all points inside or outside specified boundaries of circle or square shapes.
 #' @template param-las
 #' @param x,y \code{numeric} -  X and Y center coordinates of the crop region.
-#' @param len \code{numeric} -  if \code{circle = TRUE}, \code{len} is the circle's radius, otherwise it is the side length of a square.
+#' @param len \code{numeric} -  if \code{circle <- TRUE}, \code{len} is the circle's radius, otherwise it is the side length of a square.
 #' @param circle \code{logical} -  crops a circle (if \code{TRUE}) or a square.
 #' @param negative \code{logical} - if \code{TRUE}, returns all points **outside** the specified circle/square perimeter.
 #' @template return-las
 #' @examples
-#' file = system.file("extdata", "pine_plot.laz", package="TreeLS")
-#' tls = readTLS(file)
+#' file <- system.file("extdata", "pine_plot.laz", package="TreeLS")
+#' tls <- readTLS(file)
 #'
-#' tls = tlsCrop(tls, 2, 3, 1.5, TRUE, TRUE)
+#' tls <- tlsCrop(tls, 2, 3, 1.5, TRUE, TRUE)
 #' plot(tls)
 #'
-#' tls = tlsCrop(tls, 5, 5, 5, FALSE, FALSE)
+#' tls <- tlsCrop(tls, 5, 5, 5, FALSE, FALSE)
 #' plot(tls)
 #' @export
-tlsCrop = function(las, x, y, len, circle=TRUE, negative=FALSE){
+tlsCrop <- function(las, x, y, len, circle=TRUE, negative=FALSE){
 
   isLAS(las)
 
@@ -502,7 +502,7 @@ tlsCrop = function(las, x, y, len, circle=TRUE, negative=FALSE){
   if(length(negative) != 1)
     stop('negative must of length 1')
 
-  bool = RCropCloud(las %>% las2xyz, x, y, len, circle, negative)
+  bool <- RCropCloud(las %>% las2xyz, x, y, len, circle, negative)
   las %<>% filter_poi(bool)
 
   return(las)
@@ -517,17 +517,17 @@ tlsCrop = function(las, x, y, len, circle=TRUE, negative=FALSE){
 #' @param keep_ground \code{logical} - if \code{FALSE} removes the ground points from the output.
 #' @template return-las
 #' @examples
-#' file = system.file("extdata", "pine_plot.laz", package="TreeLS")
-#' tls = readTLS(file)
+#' file <- system.file("extdata", "pine_plot.laz", package="TreeLS")
+#' tls <- readTLS(file)
 #' plot(tls)
 #' rgl::axes3d(col='white')
 #'
-#' tls = tlsNormalize(tls, 0.5, FALSE)
+#' tls <- tlsNormalize(tls, 0.5, FALSE)
 #' plot(tls)
 #' rgl::axes3d(col='white')
 #' @importFrom raster raster extent res<-
 #' @export
-tlsNormalize = function(las, min_res=.25, keep_ground=TRUE){
+tlsNormalize <- function(las, min_res=.25, keep_ground=TRUE){
 
   isLAS(las)
 
@@ -536,17 +536,17 @@ tlsNormalize = function(las, min_res=.25, keep_ground=TRUE){
 
   if(!any(las$Classification == 2)){
     message('no ground points found, performing ground segmentation')
-    las = classify_ground(las, csf(class_threshold = 0.05, cloth_resolution = 0.05), last_returns = F)
+    las <- classify_ground(las, csf(class_threshold = 0.05, cloth_resolution = 0.05), last_returns = F)
   }
 
   res = area(las) / nrow(las@data[Classification == 2])
-  res = ifelse(res < min_res, min_res, res)
+  res <- ifelse(res < min_res, min_res, res)
 
-  grid = las %>% extent %>% raster
+  grid <- las %>% extent %>% raster
   res(grid) = res
 
-  dtm = grid_terrain(las, res = grid, algorithm = knnidw(), full_raster=TRUE)
-  las = normalize_height(las, dtm, na.rm=TRUE, Wdegenerated = TRUE)
+  dtm <- grid_terrain(las, res = grid, algorithm = knnidw(), full_raster=TRUE)
+  las <- normalize_height(las, dtm, na.rm=TRUE, Wdegenerated = TRUE)
 
   if(!keep_ground) las = filter_poi(las, Classification != 2)
 
@@ -564,7 +564,7 @@ tlsNormalize = function(las, min_res=.25, keep_ground=TRUE){
 #' @return signed \code{LAS} or \code{data.table}.
 #' @template example-tree-map
 #' @export
-treeMap = function(las, method = map.hough(), merge=0.2, positions_only=FALSE){
+treeMap <- function(las, method = map.hough(), merge=0.2, positions_only=FALSE){
 
   isLAS(las)
 
@@ -576,14 +576,14 @@ treeMap = function(las, method = map.hough(), merge=0.2, positions_only=FALSE){
   if(hasField(las, 'Classification'))
     las %<>% filter_poi(Classification != 2)
 
-  map = method(las)
+  map <- method(las)
 
   if(merge > 0){
-    map = treeMap.merge(map, merge)
+    map <- treeMap.merge(map, merge)
   }
 
   if(positions_only){
-    map = treeMap.positions(map, FALSE)
+    map <- treeMap.positions(map, FALSE)
   }
 
   return(map)
@@ -597,13 +597,13 @@ treeMap = function(las, method = map.hough(), merge=0.2, positions_only=FALSE){
 #' @return signed \code{data.table} of tree IDs and XY coordinates.
 #' @template example-tree-map
 #' @export
-treeMap.positions = function(map, plot=TRUE){
+treeMap.positions <- function(map, plot=TRUE){
 
   if(!hasAttribute(map, 'tree_map') && !hasAttribute(map, 'tree_map_dt'))
     stop('map is not a tree_map object: check ?treeMap')
 
   if(hasAttribute(map, 'tree_map_dt')){
-    pos = map
+    pos <- map
   }else{
     if(hasField(map, 'TreePosition')){
       map %<>% filter_poi(TreePosition)
@@ -634,7 +634,7 @@ treeMap.positions = function(map, plot=TRUE){
 #' from forest stands with regularly spaced trees.
 #' @importFrom nabor knn
 #' @export
-treeMap.merge = function(map, d=.2){
+treeMap.merge <- function(map, d=.2){
 
   if( !(hasAttribute(map, 'tree_map') || hasAttribute(map, 'tree_map_dt')) )
     stop('map is not a tree_map object: check ?treeMap')
@@ -642,18 +642,18 @@ treeMap.merge = function(map, d=.2){
   if(d < 0)
     stop('d must be a positive number')
 
-  is_data_table = hasAttribute(map, 'tree_map_dt')
-  nxy = if(is_data_table) map else treeMap.positions(map, plot = F)
+  is_data_table <- hasAttribute(map, 'tree_map_dt')
+  nxy <- if(is_data_table) map else treeMap.positions(map, plot = F)
   if(nrow(nxy) <= 1) return(map)
   nn = knn(nxy[,-1], k=2)
   dst = nn$nn.dists[,2] %>% sort %>% unique
   step = dst[-1] - dst[-length(dst)]
-  lg_step = which(step > d)
+  lg_step <- which(step > d)
   lg_step = lg_step[ lg_step/length(step) < .5 ]
 
   if(length(lg_step) == 0) return(map)
 
-  lg_step = 1:max(lg_step)
+  lg_step <- 1:max(lg_step)
 
   id_step = which(nn$nn.dists[,2] %in% dst[lg_step])
   id_mat = nn$nn.idx[id_step,]
@@ -681,24 +681,24 @@ treeMap.merge = function(map, d=.2){
 #' @param method tree region algorithm. Currently available: \code{\link{trp.voronoi}} and \code{\link{trp.crop}}.
 #' @template return-las
 #' @examples
-#' file = system.file("extdata", "pine_plot.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "pine_plot.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize %>%
 #'   tlsSample
 #'
-#' map = treeMap(tls, map.hough())
-#' tls = treePoints(tls, map, trp.crop(circle=FALSE))
+#' map <- treeMap(tls, map.hough())
+#' tls <- treePoints(tls, map, trp.crop(circle=FALSE))
 #'
-#' x = plot(tls, size=1)
+#' x <- plot(tls, size=1)
 #' add_treePoints(x, tls, size=2)
 #' add_treeIDs(x, tls, color='yellow', cex=2)
 #' @export
-treePoints = function(las, map, method = trp.voronoi()){
+treePoints <- function(las, map, method = trp.voronoi()){
 
   isLAS(las)
 
   if(hasAttribute(map, 'tree_map_dt')){
-    # map = map
+    # map <- map
   }else if(hasAttribute(map, 'tree_map')){
     map %<>% treeMap.positions(F)
   }else{
@@ -724,24 +724,24 @@ treePoints = function(las, map, method = trp.voronoi()){
 #' @template return-las
 #' @examples
 #' ### single tree
-#' file = system.file("extdata", "spruce.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "spruce.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize %>%
 #'   stemPoints(stm.hough(h_base = c(.5,2)))
 #' plot(tls, color='Stem')
 #'
 #' ### entire forest plot
-#' file = system.file("extdata", "pine_plot.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "pine_plot.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize %>%
 #'   tlsSample
 #'
-#' map = treeMap(tls, map.hough())
-#' tls = treePoints(tls, map, trp.crop(circle=FALSE))
-#' tls = stemPoints(tls, stm.hough(pixel_size = 0.03))
+#' map <- treeMap(tls, map.hough())
+#' tls <- treePoints(tls, map, trp.crop(circle=FALSE))
+#' tls <- stemPoints(tls, stm.hough(pixel_size = 0.03))
 #' tlsPlot(tls)
 #' @export
-stemPoints = function(las, method = stm.hough()){
+stemPoints <- function(las, method = stm.hough()){
 
   isLAS(las)
 
@@ -761,7 +761,7 @@ stemPoints = function(las, method = stm.hough()){
   if(abs(min(las$Z)) > 0.5)
     warning('point cloud apparently not normalized')
 
-  las = method(las)
+  las <- method(las)
   las@data[is.na(Stem)]$Stem = FALSE
   las@data$Stem %<>% as.logical
 
@@ -789,16 +789,16 @@ stemPoints = function(las, method = stm.hough()){
 #' @template reference-thesis
 #' @examples
 #' \donttest{
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize
 #'
-#' tls = stemPoints(tls, stm.hough())
-#' sgt = stemSegmentation(tls, sgt.ransac.circle(n=20))
+#' tls <- stemPoints(tls, stm.hough())
+#' sgt <- stemSegmentation(tls, sgt.ransac.circle(n=20))
 #' tlsPlot(tls, sgt)
 #' }
 #' @export
-stemSegmentation = function(las, method=sgt.ransac.circle()){
+stemSegmentation <- function(las, method=sgt.ransac.circle()){
 
   isLAS(las)
 
@@ -817,7 +817,7 @@ stemSegmentation = function(las, method=sgt.ransac.circle()){
 #' @template return-las
 #' @importFrom stats quantile
 #' @export
-gpsTimeFilter = function(las, from=0, to=1){
+gpsTimeFilter <- function(las, from=0, to=1){
 
   isLAS(las)
 
@@ -838,7 +838,7 @@ gpsTimeFilter = function(las, from=0, to=1){
     return(las)
   }
 
-  qts = las@data$gpstime %>% quantile(c(from, to), na.rm=T)
+  qts <- las@data$gpstime %>% quantile(c(from, to), na.rm=T)
   las %<>% filter_poi(gpstime >= qts[1] & gpstime <= qts[2])
 
   return(las)
@@ -853,7 +853,7 @@ gpsTimeFilter = function(las, from=0, to=1){
 #' @template param-las
 #' @template return-las
 #' @export
-tlsRotate = function(las, manual = TRUE){
+tlsRotate <- function(las, manual = TRUE){
 
   isLAS(las)
 
@@ -922,28 +922,28 @@ tlsRotate = function(las, manual = TRUE){
 #' by a minus sign ('-') to reverse its coordinates.
 #'
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file)
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file)
 #' bbox(tls)
 #' range(tls$Z)
 #'
 #' ### swap the Y and Z axes
-#' zy = tlsTransform(tls, c('x', 'z', 'y'))
+#' zy <- tlsTransform(tls, c('x', 'z', 'y'))
 #' bbox(zy)
 #' range(zy$Z)
 #'
 #' ### return an upside down point cloud
-#' ud = tlsTransform(tls, c('x', 'y', '-z'))
+#' ud <- tlsTransform(tls, c('x', 'y', '-z'))
 #' bbox(ud)
 #' range(ud$Z)
 #' plot(zy)
 #'
 #' ### mirror all axes, then set the point cloud's starting point as the origin
-#' rv = tlsTransform(tls, c('-x', '-y', '-z'), bring_to_origin=TRUE)
+#' rv <- tlsTransform(tls, c('-x', '-y', '-z'), bring_to_origin=TRUE)
 #' bbox(rv)
 #' range(rv$Z)
 #' @export
-tlsTransform = function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, rotate = FALSE){
+tlsTransform <- function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, rotate = FALSE){
 
   isLAS(las)
 
@@ -958,9 +958,8 @@ tlsTransform = function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, ro
   if(!is.logical(rotate))
     stop('rotate must be logical')
 
-  XYZ = lapply(xyz, function(i){
-    temp =
-      if(i == 'X'){
+  XYZ <- lapply(xyz, function(i){
+    temp <-       if(i == 'X'){
         las$X
       }else if(i == '-X'){
         -las$X
@@ -989,7 +988,7 @@ tlsTransform = function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, ro
   }
 
   if(bring_to_origin){
-    las = LAS(las@data)
+    las <- LAS(las@data)
 
     mincoords = las@data[,.(min(X), min(Y), min(Z))] %>% as.double
 
@@ -1012,14 +1011,14 @@ tlsTransform = function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, ro
 #' @template param-conf
 #' @template param-n-best
 #' @return vector of parameters
-circleFit = function(las, method = 'irls', n=5, inliers=.8, conf=.99, n_best = 0){
+circleFit <- function(las, method = 'irls', n=5, inliers=.8, conf=.99, n_best = 0){
   if(nrow(las@data) < 3) return(NULL)
   if(method == 'ransac' & nrow(las@data) <= n) method = 'qr'
-  pars = cppCircleFit(las %>% las2xyz, method, n, conf, inliers, n_best)
+  pars <- cppCircleFit(las %>% las2xyz, method, n, conf, inliers, n_best)
   pars[3] = pars[3]
   names(pars)[1:4] = c('X','Y','radius', 'err')
   if(length(pars) == 5) names(pars)[5] = 'err2'
-  pars = pars %>% t %>% as.data.frame
+  pars <- pars %>% t %>% as.data.frame
   return(pars)
 }
 
@@ -1034,10 +1033,10 @@ circleFit = function(las, method = 'irls', n=5, inliers=.8, conf=.99, n_best = 0
 #' @param max_angle \code{numeric} - used when \code{method == "bf"}. The maximum tolerated deviation, in degrees, from an absolute vertical line (Z = c(0,0,1)).
 #' @template param-n-best
 #' @return vector of parameters
-cylinderFit = function(las, method = 'ransac', n=5, inliers=.9, conf=.95, max_angle=30, n_best=20){
+cylinderFit <- function(las, method = 'ransac', n=5, inliers=.9, conf=.95, max_angle=30, n_best=20){
   if(nrow(las@data) < 3) return(NULL)
   if(method == 'ransac' & nrow(las@data) <= n) method = 'nm'
-  pars = cppCylinderFit(las %>% las2xyz, method, n, conf, inliers, max_angle, n_best)
+  pars <- cppCylinderFit(las %>% las2xyz, method, n, conf, inliers, max_angle, n_best)
   if(method == 'bf'){
     pars[3] = pars[3]
     names(pars) = c('x','y','radius', 'err', 'ax', 'ay')
@@ -1046,7 +1045,7 @@ cylinderFit = function(las, method = 'ransac', n=5, inliers=.9, conf=.95, max_an
     pars %<>% c(apply(las@data[,.(X,Y,Z)], 2, function(x) sum(range(x))/2) %>% as.double)
     names(pars) = c('rho','theta','phi', 'alpha', 'radius', 'err', 'px', 'py', 'pz')
   }
-  pars = pars %>% t %>% as.data.frame
+  pars <- pars %>% t %>% as.data.frame
   return(pars)
 }
 
@@ -1074,19 +1073,19 @@ cylinderFit = function(las, method = 'ransac', n=5, inliers=.9, conf=.95, max_an
 #' @template reference-olofsson
 #' @template reference-thesis
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file)
-#' segment = filter_poi(tls, Z > 1 & Z < 2)
-#' pars = shapeFit(segment, shape='circle', algorithm='irls')
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file)
+#' segment <- filter_poi(tls, Z > 1 & Z < 2)
+#' pars <- shapeFit(segment, shape='circle', algorithm='irls')
 #'
 #' segment@data %$% plot(Y ~ X, pch=20, asp=1)
 #' pars %$% points(X,Y,col='red', pch=3, cex=2)
 #' pars %$% lines(c(X,X+Radius),c(Y,Y), col='red',lwd=2,lty=2)
 #' @export
-shapeFit = function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10, conf=0.95, inliers=0.9, n_best = 10, z_dev = 30){
+shapeFit <- function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10, conf=0.95, inliers=0.9, n_best = 10, z_dev = 30){
 
-  ls_shapes = c('circle', 'cylinder')
-  ls_algo   = c('ransac', 'irls', 'nm', 'qr', 'bf')
+  ls_shapes <- c('circle', 'cylinder')
+  ls_algo   <- c('ransac', 'irls', 'nm', 'qr', 'bf')
 
   if(!(shape %in% ls_shapes)){
     stop(glue::glue("'{shape}' not available. Enter a valid shape name."))
@@ -1102,12 +1101,12 @@ shapeFit = function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10,
     stop('bf algorithm only available for cylinder shapes')
   }
 
-  params = list(
-    n = n,
-    conf = conf,
-    inliers = inliers,
-    n_best = n_best,
-    z_dev = z_dev
+  params <- list(
+    n <- n,
+    conf <- conf,
+    inliers <- inliers,
+    n_best <- n_best,
+    z_dev <- z_dev
   )
 
   for(i in names(params)){
@@ -1124,15 +1123,15 @@ shapeFit = function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10,
   }
 
   if(shape == 'circle'){
-    func = function(las){
-      fit = circleFit(las, algorithm, n, inliers, conf, n_best)
+    func <- function(las){
+      fit <- circleFit(las, algorithm, n, inliers, conf, n_best)
       fit = fit[1:4]
       colnames(fit) = c('X', 'Y', 'Radius', 'Error')
       return(as.data.table(fit))
     }
   }else if(shape == 'cylinder'){
-    func = function(las){
-      fit = cylinderFit(las, algorithm, n, inliers, conf, z_dev, n_best)
+    func <- function(las){
+      fit <- cylinderFit(las, algorithm, n, inliers, conf, z_dev, n_best)
       if(algorithm=='bf'){
         colnames(fit) = c('X', 'Y', 'Radius', 'Error', 'DX', 'DY')
       } else {
@@ -1162,21 +1161,21 @@ shapeFit = function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10,
 #' @param d_method parameterized \code{\link{shapeFit}} function, i.e. method to use for diameter estimation.
 #' @examples
 #' \donttest{
-#' file = system.file("extdata", "pine_plot.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "pine_plot.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize %>%
 #'   tlsSample
 #'
-#' map = treeMap(tls, map.hough())
-#' tls = treePoints(tls, map, trp.crop(circle=FALSE))
-#' tls = stemPoints(tls, stm.hough())
+#' map <- treeMap(tls, map.hough())
+#' tls <- treePoints(tls, map, trp.crop(circle=FALSE))
+#' tls <- stemPoints(tls, stm.hough())
 #'
-#' dmt = shapeFit(shape = 'circle', algorithm='ransac', n=20)
-#' inv = tlsInventory(tls, d_method = dmt)
+#' dmt <- shapeFit(shape = 'circle', algorithm='ransac', n=20)
+#' inv <- tlsInventory(tls, d_method = dmt)
 #' tlsPlot(tls, inv)
 #' }
 #' @export
-tlsInventory = function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(shape = 'circle', algorithm='ransac', n=15, n_best = 20)){
+tlsInventory <- function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(shape = 'circle', algorithm='ransac', n=15, n_best = 20)){
 
   preCheck(las)
 
@@ -1184,10 +1183,10 @@ tlsInventory = function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(sha
     stop("las must be a normalized point cloud with highlighted stem points ('Stem' field) - see ?stemPoints")
   }
 
-  params = list(
-    dh = dh,
-    dw = dw,
-    hp = hp
+  params <- list(
+    dh <- dh,
+    dw <- dw,
+    hp <- hp
   )
 
   for(i in names(params)){
@@ -1207,21 +1206,21 @@ tlsInventory = function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(sha
     stop('d_method must be a parameterized shapeFit function')
   }
 
-  hfunc = function(Z,p) as.double(quantile(Z, p))
-  dfunc = function(X,Y,Z){ if(length(X) < 3) return(NULL); d_method(suppressMessages(LAS(data.table(X,Y,Z)))) }
+  hfunc <- function(Z,p) as.double(quantile(Z, p))
+  dfunc <- function(X,Y,Z){ if(length(X) < 3) return(NULL); d_method(suppressMessages(LAS(data.table(X,Y,Z)))) }
 
-  dlas = filter_poi(las, Stem & Z > (dh - dw/2) & Z < (dh + dw/2))
+  dlas <- filter_poi(las, Stem & Z > (dh - dw/2) & Z < (dh + dw/2))
 
   if(hasField(las, 'TreeID')){
     h = las@data[TreeID > 0, .(H = hfunc(Z, hp)), by='TreeID']
     d = dlas@data[,dfunc(X,Y,Z),by=TreeID]
     dh_tab = merge(d,h,by='TreeID')[order(TreeID)]
   } else {
-    dh_tab = dlas@data %$% dfunc(X,Y,Z)
+    dh_tab <- dlas@data %$% dfunc(X,Y,Z)
     dh_tab$H= hfunc(las$Z, hp)
   }
 
-  dh_tab$h_radius = dh
+  dh_tab$h_radius <- dh
   dh_tab %<>% setAttribute('tls_inventory_dt')
   return(dh_tab)
 
@@ -1240,24 +1239,24 @@ tlsInventory = function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(sha
 #' @param stems_data_table,inventory_data_table \code{data.table} objects generated by \code{stemSegmentation} and \code{tlsInventory}.
 #' @param color color of 3D objects.
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file) %>%
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file) %>%
 #'   tlsNormalize %>%
 #'   stemPoints(stm.hough())
 #'
-#' dmt = shapeFit(shape = 'circle', algorithm='ransac', n=20)
-#' inv = tlsInventory(tls, d_method = dmt)
+#' dmt <- shapeFit(shape = 'circle', algorithm='ransac', n=20)
+#' inv <- tlsInventory(tls, d_method = dmt)
 #'
 #' ### quick plot
 #' tlsPlot(tls, inv)
 #'
 #' ### customizable plots
-#' x = plot(tls)
+#' x <- plot(tls)
 #' add_stemPoints(x, tls, color='red', size=3)
 #' add_tlsInventory(x, inv, color='yellow')
 #' add_segmentIDs(x, tls, color='white', cex=2, pos=4)
 #' @export
-tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
+tlsPlot <- function(..., fast=FALSE, tree_id = NULL, segment = NULL){
 
   .tls_dots_list = as.list(match.call(expand.dots = F))[['...']]
 
@@ -1270,25 +1269,25 @@ tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
     .tls_dots_list[[i]] = obj
   }
 
-  seg_ids = FALSE
-  tree_ids = FALSE
-  pt_cex = 1.5
+  seg_ids <- FALSE
+  tree_ids <- FALSE
+  pt_cex <- 1.5
 
-  tid_plot = function(obj){
+  tid_plot <- function(obj){
     if(tree_ids || !is.null(tree_id)) return(tree_ids)
     if(!hasField(obj, 'TreeID') || !hasField(obj, 'X')) return(tree_ids)
     add_treeIDs(0, obj, color='yellow')
     return(TRUE)
   }
 
-  sid_plot = function(obj){
+  sid_plot <- function(obj){
     if(tree_ids || seg_ids || !hasField(obj, 'X')) return(seg_ids)
     add_segmentIDs(0, obj, color='yellow', pos=4)
     return(TRUE)
   }
 
-  h_plot = function(las){
-    colors = set.colors(las$Z, lidR::height.colors(50))
+  h_plot <- function(las){
+    colors <- set.colors(las$Z, lidR::height.colors(50))
     points3d(las %>% las2xyz, color=colors, size=pt_cex)
   }
 
@@ -1299,28 +1298,28 @@ tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
     if(class(las)[1] == 'LAS'){
 
       if(hasField(las, 'TreeID') && !is.null(tree_id)){
-        las = filter_poi(las, TreeID == tree_id)
+        las <- filter_poi(las, TreeID == tree_id)
       }
 
       if(hasField(las, 'Segment') && !is.null(segment)){
-        las = filter_poi(las, Segment == segment)
+        las <- filter_poi(las, Segment == segment)
       }
 
       if(hasField(las, 'Stem')){
         add_stemPoints(0, las, color='white', size=pt_cex)
         if(hasField(las, 'TreeID')) add_treePoints(0, las, size=pt_cex) else h_plot(las)
-        tree_ids = tid_plot(las)
-        seg_ids = sid_plot(las)
+        tree_ids <- tid_plot(las)
+        seg_ids <- sid_plot(las)
       }else if(hasAttribute(las, 'tree_map')){
         add_treeMap(0, las, color='yellow')
-        tree_ids = tid_plot(las)
+        tree_ids <- tid_plot(las)
       }else if(hasField(las, 'TreeID')){
         add_treePoints(0, las, size=pt_cex)
-        tree_ids = tid_plot(las)
+        tree_ids <- tid_plot(las)
       }else{
         h_plot(las)
       }
-      pt_cex = pt_cex + .5
+      pt_cex <- pt_cex + .5
     }else{
 
       if(hasField(las, 'TreeID') && !is.null(tree_id)){
@@ -1333,14 +1332,14 @@ tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
 
       if(hasAttribute(las, 'tls_inventory_dt')){
         add_tlsInventory(0, las, fast=fast)
-        tree_ids = tid_plot(las)
+        tree_ids <- tid_plot(las)
       }else if(hasAttribute(las, 'single_stem_dt') || hasAttribute(las, 'multiple_stems_dt')){
         add_stemSegments(0, las, fast=fast)
-        tree_ids = tid_plot(las)
-        seg_ids = sid_plot(las)
+        tree_ids <- tid_plot(las)
+        seg_ids <- sid_plot(las)
       }else if(hasAttribute(las, 'tree_map_dt')){
         add_treeMap(0, las, color='yellow')
-        tree_ids = tid_plot(las)
+        tree_ids <- tid_plot(las)
       }
     }
   }
@@ -1365,15 +1364,15 @@ tlsPlot = function(..., fast=FALSE, tree_id = NULL, segment = NULL){
 #' @importFrom utils combn
 #' @importFrom graphics legend
 #' @export
-shapeFit.forks = function(dlas, pixel_size = .02, max_d = .4, votes_percentile = .7, min_density = .25, plot=FALSE){
+shapeFit.forks <- function(dlas, pixel_size = .02, max_d = .4, votes_percentile = .7, min_density = .25, plot=FALSE){
 
   isLAS(dlas)
 
-  params = list(
-    pixel_size = pixel_size,
-    max_d = max_d,
-    votes_percentile = votes_percentile,
-    min_density = min_density
+  params <- list(
+    pixel_size <- pixel_size,
+    max_d <- max_d,
+    votes_percentile <- votes_percentile,
+    min_density <- min_density
   )
 
   for(i in names(params)){
@@ -1389,82 +1388,82 @@ shapeFit.forks = function(dlas, pixel_size = .02, max_d = .4, votes_percentile =
       stop( i %>% paste('must be positive') )
   }
 
-  hg = getHoughCircle(dlas %>% las2xyz, pixel_size, rad_max = max_d/2, min_den = min_density, min_votes = 2) %>% do.call(what=rbind) %>% as.data.table
+  hg <- getHoughCircle(dlas %>% las2xyz, pixel_size, rad_max = max_d/2, min_den = min_density, min_votes = 2) %>% do.call(what=rbind) %>% as.data.table
   names(hg) = c('x','y','r','v')
   hg = hg[v > quantile(v, votes_percentile)]
-  hg$clt = 1
+  hg$clt <- 1
 
-  hough_clusters = hg
+  hough_clusters <- hg
   centers = hg[v == max(v)] %>% apply(2,mean) %>% t %>% as.data.table
 
-  k = 2
+  k <- 2
   repeat{
     km = kmeans(hg[,1:3], k)
-    hg$clt = km$cluster
+    hg$clt <- km$cluster
     mxs = hg[,.(x=mean(x), y=mean(y), r=mean(r), v=mean(v)), by=clt]
     dst = mxs[,c('x','y')] %>% dist
-    combs = combn(nrow(mxs), 2)
+    combs <- combn(nrow(mxs), 2)
     rst = apply(combs, 2, function(x){mxs$r[x[1]] + mxs$r[x[2]]}) - pixel_size
-    is_forked = all(min(dst) > rst)
+    is_forked <- all(min(dst) > rst)
 
     if(!is_forked) break
 
-    hough_clusters$clt = km$cluster
+    hough_clusters$clt <- km$cluster
     centers = mxs[,.(x=mean(x),y=mean(y),r=mean(r),v=mean(v)),by=clt][order(clt)]
-    centers$ssRatio = (km$withinss / km$size) / min(km$withinss / km$size)
-    centers$nRatio = km$size / max(km$size)
-    centers$absRatio = centers$ssRatio / centers$nRatio
-    v_ratio = centers %$% ifelse(min(absRatio) > 5, absRatio, 5)
+    centers$ssRatio <- (km$withinss / km$size) / min(km$withinss / km$size)
+    centers$nRatio <- km$size / max(km$size)
+    centers$absRatio <- centers$ssRatio / centers$nRatio
+    v_ratio <- centers %$% ifelse(min(absRatio) > 5, absRatio, 5)
     centers = centers[absRatio <= v_ratio][order(-v)]
     k=k+1
   }
 
   if(plot){
     plot(dlas$Y ~ dlas$X, cex=.5, asp=1, pch=20, ylab='Y', xlab='X')#, ...)
-    vcols = set.colors(hough_clusters$v, height.colors(hough_clusters$v %>% unique %>% length))
-    vcols = set.colors(hough_clusters$clt, height.colors(hough_clusters$clt %>% unique %>% length))
+    vcols <- set.colors(hough_clusters$v, height.colors(hough_clusters$v %>% unique %>% length))
+    vcols <- set.colors(hough_clusters$clt, height.colors(hough_clusters$clt %>% unique %>% length))
     points(hough_clusters$x, hough_clusters$y, col=vcols, pch=20, cex=1)
   }
 
-  estimates = data.frame()
-  dlas@data$StemID = 0
+  estimates <- data.frame()
+  dlas@data$StemID <- 0
   for(i in 1:nrow(centers)){
     temp = centers[i]
 
-    dsts = dlas@data %$% sqrt( (X - temp$x)^2 + (Y - temp$y)^2 )
-    pts = dsts < temp$r + 2*pixel_size & dlas@data$StemID == 0
+    dsts <- dlas@data %$% sqrt( (X - temp$x)^2 + (Y - temp$y)^2 )
+    pts <- dsts < temp$r + 2*pixel_size & dlas@data$StemID == 0
     dlas@data$StemID[pts] = i
 
-    cld = filter_poi(dlas, StemID == i)
-    est = circleFit(cld, 'ransac', n=15, inliers = .7, n_best = 30)
+    cld <- filter_poi(dlas, StemID == i)
+    est <- circleFit(cld, 'ransac', n=15, inliers = .7, n_best = 30)
     if(is.null(est)) next
 
-    dst = cld@data %$% sqrt( (X - est$X)^2 + (Y - est$Y)^2 )
-    rad = est$radius
-    thickness = ifelse(rad/2 > pixel_size, pixel_size,  rad/2)
+    dst <- cld@data %$% sqrt( (X - est$X)^2 + (Y - est$Y)^2 )
+    rad <- est$radius
+    thickness <- ifelse(rad/2 > pixel_size, pixel_size,  rad/2)
 
-    inner = dst <= thickness
-    area_inner = pi*thickness^2
-    den_inner = (inner %>% which %>% length) / area_inner
+    inner <- dst <= thickness
+    area_inner <- pi*thickness^2
+    den_inner <- (inner %>% which %>% length) / area_inner
 
-    strip = dst > (rad - thickness/2) & dst < (rad + thickness/2)
-    area_strip = pi*((rad + thickness/2)^2 - (rad - thickness/2)^2)
-    den_strip = (strip %>% which %>% length) / area_strip
+    strip <- dst > (rad - thickness/2) & dst < (rad + thickness/2)
+    area_strip <- pi*((rad + thickness/2)^2 - (rad - thickness/2)^2)
+    den_strip <- (strip %>% which %>% length) / area_strip
 
-    outer = dst < (rad + thickness) & dst >= (rad + thickness/2)
-    area_outer = pi*((rad + thickness)^2 - (rad + thickness/2)^2)
-    den_outer = (outer %>% which %>% length) / area_outer
+    outer <- dst < (rad + thickness) & dst >= (rad + thickness/2)
+    area_outer <- pi*((rad + thickness)^2 - (rad + thickness/2)^2)
+    den_outer <- (outer %>% which %>% length) / area_outer
 
-    est$ratioInner = den_inner / den_strip
-    est$ratioOuter = den_outer / den_strip
-    est$StemID = i
+    est$ratioInner <- den_inner / den_strip
+    est$ratioOuter <- den_outer / den_strip
+    est$StemID <- i
     est$TreeID = dlas$TreeID[1]
-    est$score = 1
+    est$score <- 1
 
     if(est$ratioInner > 1){
-      est$score = 3
+      est$score <- 3
     }else if(est$ratioInner > .8 | est$ratioOuter > .8){
-      est$score = 2
+      est$score <- 2
     }
 
     estimates %<>% rbind(est)
@@ -1472,20 +1471,20 @@ shapeFit.forks = function(dlas, pixel_size = .02, max_d = .4, votes_percentile =
     if(plot){
       cld@data %$% points(X,Y, col=ifelse(strip, 'darkblue', ifelse(inner | outer, 'darkred', 'black')), cex=.75, pch=20)
 
-      angs = seq(0,pi*2,length.out = 36)
-      xh = temp$x + cos(angs) * temp$r
-      yh = temp$y + sin(angs) * temp$r
+      angs <- seq(0,pi*2,length.out = 36)
+      xh <- temp$x + cos(angs) * temp$r
+      yh <- temp$y + sin(angs) * temp$r
       lines(xh,yh,col='orange',lwd=2)
 
-      xr = est$X + cos(angs) * est$radius
-      yr = est$Y + sin(angs) * est$radius
+      xr <- est$X + cos(angs) * est$radius
+      yr <- est$Y + sin(angs) * est$radius
       lines(xr,yr,col='green',lwd=2)
 
       legend('topright', lty=c(1,1), lwd=2, col=c('orange', 'green'), legend = c('Hough Transform', 'RANSAC circle'))
     }
   }
 
-  check = estimates$score == 3
+  check <- estimates$score == 3
   if(!all(check)){
     estimates = estimates[ estimates$score < 3 ,]
   }

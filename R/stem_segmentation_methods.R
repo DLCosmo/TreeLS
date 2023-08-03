@@ -29,13 +29,13 @@
 #' @template reference-olofsson
 #' @template reference-thesis
 #' @export
-sgt.ransac.circle = function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
+sgt.ransac.circle <- function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
 
-  params = list(
-    tol = tol,
-    n = n,
-    conf = conf,
-    inliers = inliers
+  params <- list(
+    tol <- tol,
+    n <- n,
+    conf <- conf,
+    inliers <- inliers
   )
 
   for(i in names(params)){
@@ -63,22 +63,22 @@ sgt.ransac.circle = function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
   if(n > 20)
     message('beware that a large n value increases processing time exponentially')
 
-  func = function(las){
+  func <- function(las){
 
     if(!hasField(las, 'TreeID')){
 
       message('performing single stem segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = ransacStemCircle(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, tol) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- ransacStemCircle(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, tol) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'Error', 'Segment')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), Segment]
 
       estimates %<>% merge(z, by='Segment')
 
-      # Segment = NULL
+      # Segment <- NULL
       estimates = estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
@@ -87,16 +87,16 @@ sgt.ransac.circle = function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
 
       message('performing multiple stems segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = ransacPlotCircles(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- ransacPlotCircles(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'Error', 'Segment', 'TreeID')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), .(TreeID, Segment)]
 
       estimates %<>% merge(z, by=c('TreeID', 'Segment'))
 
-      # TreeID = Segment = NULL
+      # TreeID <- Segment <- NULL
       estimates = estimates[order(TreeID, Segment)]
 
       estimates %<>% setAttribute("multiple_stems_dt")
@@ -122,13 +122,13 @@ sgt.ransac.circle = function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
 #' @template reference-olofsson
 #' @template reference-thesis
 #' @export
-sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
+sgt.ransac.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
 
-  params = list(
-    tol = tol,
-    n = n,
-    conf = conf,
-    inliers = inliers
+  params <- list(
+    tol <- tol,
+    n <- n,
+    conf <- conf,
+    inliers <- inliers
   )
 
   for(i in names(params)){
@@ -156,15 +156,15 @@ sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
   if(n > 15)
     message('beware that a large n value increases processing time exponentially')
 
-  func = function(las){
+  func <- function(las){
 
     if(!hasField(las, 'TreeID')){
 
       message('performing single stem segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = ransacStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, tol) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- ransacStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, tol) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('rho', 'theta', 'phi', 'alpha', 'Radius', 'Error', 'Segment')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), Segment]
@@ -172,7 +172,7 @@ sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
 
       estimates %<>% merge(z, by='Segment') %>% merge(poses, by='Segment')
 
-      # Segment = NULL
+      # Segment <- NULL
       estimates = estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
@@ -181,9 +181,9 @@ sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
 
       message('performing multiple stems segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = ransacPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, tol) %>% lapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- ransacPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, tol) %>% lapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('rho', 'theta', 'phi', 'alpha', 'Radius', 'Error', 'Segment', 'TreeID')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), .(TreeID, Segment)]
@@ -191,7 +191,7 @@ sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
 
       estimates %<>% merge(z, by=c('TreeID', 'Segment')) %>% merge(poses, by=c('TreeID', 'Segment'))
 
-      # TreeID = Segment = NULL
+      # TreeID <- Segment <- NULL
       estimates = estimates[order(TreeID, Segment)]
 
       estimates %<>% setAttribute("multiple_stems_dt")
@@ -214,11 +214,11 @@ sgt.ransac.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
 #' @template reference-liang
 #' @template reference-thesis
 #' @export
-sgt.irls.circle = function(tol=0.1, n = 500){
+sgt.irls.circle <- function(tol=0.1, n = 500){
 
-  params = list(
-    tol = tol,
-    n = n
+  params <- list(
+    tol <- tol,
+    n <- n
   )
 
   for(i in names(params)){
@@ -243,22 +243,22 @@ sgt.irls.circle = function(tol=0.1, n = 500){
   if(tol <= 0)
     stop('tol must be larger than 0')
 
-  func = function(las){
+  func <- function(las){
 
     if(!hasField(las, 'TreeID')){
 
       message('performing single stem segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = irlsStemCircle(las %>% las2xyz, las@data$Segment, las@data$Radius, n, tol) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- irlsStemCircle(las %>% las2xyz, las@data$Segment, las@data$Radius, n, tol) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'SSQ', 'Error', 'Segment')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), Segment]
 
       estimates %<>% merge(z, by='Segment')
 
-      # Segment = NULL
+      # Segment <- NULL
       estimates = estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
@@ -267,22 +267,22 @@ sgt.irls.circle = function(tol=0.1, n = 500){
 
       message('performing multiple stems segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = irlsPlotCircles(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- irlsPlotCircles(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'SSQ', 'Error', 'Segment', 'TreeID')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), .(TreeID, Segment)]
 
       estimates %<>% merge(z, by=c('TreeID', 'Segment'))
 
-      # TreeID = Segment = NULL
+      # TreeID <- Segment <- NULL
       estimates = estimates[order(TreeID, Segment)]
 
       estimates %<>% setAttribute("multiple_stems_dt")
     }
 
-    estimates$SSQ = NULL
+    estimates$SSQ <- NULL
     return(estimates)
   }
 
@@ -300,11 +300,11 @@ sgt.irls.circle = function(tol=0.1, n = 500){
 #' @template reference-liang
 #' @template reference-thesis
 #' @export
-sgt.irls.cylinder = function(tol=0.1, n = 100){
+sgt.irls.cylinder <- function(tol=0.1, n = 100){
 
-  params = list(
-    tol = tol,
-    n = n
+  params <- list(
+    tol <- tol,
+    n <- n
   )
 
   for(i in names(params)){
@@ -329,15 +329,15 @@ sgt.irls.cylinder = function(tol=0.1, n = 100){
   if(tol <= 0)
     stop('tol must be larger than 0')
 
-  func = function(las){
+  func <- function(las){
 
     if(!hasField(las, 'TreeID')){
 
       message('performing single stem segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = irlsStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, tol) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- irlsStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, tol) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('rho', 'theta', 'phi', 'alpha', 'Radius', 'Error', 'Segment')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), Segment]
@@ -345,7 +345,7 @@ sgt.irls.cylinder = function(tol=0.1, n = 100){
 
       estimates %<>% merge(z, by='Segment') %>% merge(poses, by='Segment')
 
-      # Segment = NULL
+      # Segment <- NULL
       estimates = estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
@@ -354,9 +354,9 @@ sgt.irls.cylinder = function(tol=0.1, n = 100){
 
       message('performing multiple stems segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = irlsPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
+      estimates <- irlsPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, tol) %>% sapply(do.call, what=rbind) %>% do.call(what = rbind) %>% as.data.table
       names(estimates) = c('rho', 'theta', 'phi', 'alpha', 'Radius', 'Error', 'Segment', 'TreeID')
 
       z = las@data[, .(AvgHeight = mean(Z), N = .N), .(TreeID, Segment)]
@@ -364,7 +364,7 @@ sgt.irls.cylinder = function(tol=0.1, n = 100){
 
       estimates %<>% merge(z, by=c('TreeID', 'Segment')) %>% merge(poses, by=c('TreeID', 'Segment'))
 
-      # TreeID = Segment = NULL
+      # TreeID <- Segment <- NULL
       estimates = estimates[order(TreeID, Segment)]
 
       estimates %<>% setAttribute("multiple_stems_dt")
@@ -387,14 +387,14 @@ sgt.irls.cylinder = function(tol=0.1, n = 100){
 #' @template param-z-dev
 #' @template section-brute-force
 #' @export
-sgt.bf.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 30){
+sgt.bf.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 30){
 
-  params = list(
-    tol = tol,
-    n = n,
-    conf = conf,
-    inliers = inliers,
-    z_dev = z_dev
+  params <- list(
+    tol <- tol,
+    n <- n,
+    conf <- conf,
+    inliers <- inliers,
+    z_dev <- z_dev
   )
 
   for(i in names(params)){
@@ -422,15 +422,15 @@ sgt.bf.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 
   if(n > 15)
     message('beware that a large n value increases processing time exponentially')
 
-  func = function(las){
+  func <- function(las){
 
     if(!hasField(las, 'TreeID')){
 
       message('performing single stem segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = bfStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, z_dev, tol) %>%
+      estimates <- bfStemCylinder(las %>% las2xyz, las@data$Segment, las@data$Radius, n, conf, inliers, z_dev, tol) %>%
         do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'Error', 'DX', 'DY', 'Segment')
 
@@ -438,7 +438,7 @@ sgt.bf.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 
 
       estimates %<>% merge(z, by='Segment')
 
-      # Segment = NULL
+      # Segment <- NULL
       estimates = estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
@@ -447,9 +447,9 @@ sgt.bf.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 
 
       message('performing multiple stems segmentation')
 
-      las = filter_poi(las, Stem == TRUE)
+      las <- filter_poi(las, Stem == TRUE)
 
-      estimates = bfPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, z_dev, tol) %>%
+      estimates <- bfPlotCylinders(las %>% las2xyz, las$TreeID, las$Segment, las$Radius, n, conf, inliers, z_dev, tol) %>%
         lapply(do.call, what=rbind) %>%
         do.call(what = rbind) %>% as.data.table
       names(estimates) = c('X', 'Y', 'Radius', 'Error', 'DX', 'DY', 'Segment', 'TreeID')
@@ -458,7 +458,7 @@ sgt.bf.cylinder = function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev = 
 
       estimates %<>% merge(z, by=c('TreeID', 'Segment'))
 
-      # TreeID = Segment = NULL
+      # TreeID <- Segment <- NULL
       estimates = estimates[order(TreeID, Segment)]
 
       estimates %<>% setAttribute("multiple_stems_dt")

@@ -18,7 +18,7 @@
 #
 # ===============================================================================
 
-POINT_METRICS_NAMES = c(
+POINT_METRICS_NAMES <- c(
   'N',
   'MinDist',
   'MaxDist',
@@ -55,27 +55,27 @@ POINT_METRICS_NAMES = c(
   'EigenVector33'
 )
 
-ENABLED_POINT_METRICS = new.env()
+ENABLED_POINT_METRICS <- new.env()
 ENABLED_POINT_METRICS$names = POINT_METRICS_NAMES[c(1,13,16,4,32:34)]
 
-ptmMetricsLog = function(which_metrics){
-  metrics_log = POINT_METRICS_NAMES %in% which_metrics
+ptmMetricsLog <- function(which_metrics){
+  metrics_log <- POINT_METRICS_NAMES %in% which_metrics
   if(all(!metrics_log)) stop('Please provide at least one valid metric. See ?fastPointMetrics.available')
   metrics_names = POINT_METRICS_NAMES[metrics_log]
   return(list(log = metrics_log, names = metrics_names))
 }
 
-ptmStatistics = function(las, knn, which_metrics = ENABLED_POINT_METRICS$names){
+ptmStatistics <- function(las, knn, which_metrics = ENABLED_POINT_METRICS$names){
 
-  pick_metrics = ptmMetricsLog(which_metrics)
+  pick_metrics <- ptmMetricsLog(which_metrics)
 
-  kid = knn$nn.idx
-  # kds = knn$nn.dists
+  kid <- knn$nn.idx
+  # kds <- knn$nn.dists
   # kds[kid == 0] = 0
 
-  ptm = pointMetricsCpp(las %>% las2xyz, kid, pick_metrics$log) %>% do.call(what = rbind) %>% as.data.table
+  ptm <- pointMetricsCpp(las %>% las2xyz, kid, pick_metrics$log) %>% do.call(what = rbind) %>% as.data.table
   colnames(ptm) = pick_metrics$names
-  ptm = cleanFields(ptm, colnames(ptm))
+  ptm <- cleanFields(ptm, colnames(ptm))
 
   return(ptm)
 }
@@ -86,25 +86,25 @@ ptmStatistics = function(las, knn, which_metrics = ENABLED_POINT_METRICS$names){
 #' @param d \code{numeric} - voxel spacing, in point cloud units.
 #' @param exact \code{logical} - use exact voxel search? If \code{FALSE}, applies approximate voxel search using integer index hashing, much faster on large point clouds (several million points).
 #' @export
-ptm.voxel = function(d = .1, exact=FALSE){
+ptm.voxel <- function(d = .1, exact=FALSE){
 
   if(!is.numeric(d)) stop('d must be a number')
   if(d <= 0) stop('d must be a positive number')
   if(!is.logical(exact)) stop('exact must be logical')
 
-  func = function(las, which_metrics){
+  func <- function(las, which_metrics){
 
-    special_case = any(c('KnnDensity', 'KnnDensity2d') %in% which_metrics) && all(which_metrics != 'N')
+    special_case <- any(c('KnnDensity', 'KnnDensity2d') %in% which_metrics) && all(which_metrics != 'N')
 
     if(special_case){
-      which_metrics = c('N', which_metrics)
+      which_metrics <- c('N', which_metrics)
     }
 
-    pick_metrics = ptmMetricsLog(which_metrics)
+    pick_metrics <- ptmMetricsLog(which_metrics)
 
     if(exact){
 
-      df = data.table()
+      df <- data.table()
       offset = las@data[1,1:3]
       for(var in c('X', 'Y', 'Z')){
         dst = floor( (las[[var]] - offset[[var]]) / d )
@@ -115,39 +115,39 @@ ptm.voxel = function(d = .1, exact=FALSE){
 
     }else{
 
-      vx = voxelIndex(las2xyz(las), d)
+      vx <- voxelIndex(las2xyz(las), d)
 
-      uid = unique(vx)
-      vxid = data.table(hash = uid, id = 1:length(uid))
+      uid <- unique(vx)
+      vxid <- data.table(hash = uid, id = 1:length(uid))
 
-      vx = data.table(hash = vx)
-      vx = merge(vx, vxid, by='hash', sort=F)
-      vx = vx$id %>% as.double
+      vx <- data.table(hash = vx)
+      vx <- merge(vx, vxid, by='hash', sort=F)
+      vx <- vx$id %>% as.double
     }
 
-    idx = split(0:(length(vx)-1), vx)
-    vtm = voxelMetrics(las2xyz(las), idx, pick_metrics$log) %>% do.call(what = rbind) %>% as.data.table
+    idx <- split(0:(length(vx)-1), vx)
+    vtm <- voxelMetrics(las2xyz(las), idx, pick_metrics$log) %>% do.call(what = rbind) %>% as.data.table
     colnames(vtm) = pick_metrics$names
 
     keep_names = colnames(las@data)[ !( colnames(las@data) %in% colnames(vtm) ) ]
     las@data = las@data[, keep_names, with=F]
-    vtm$VoxelID = names(idx) %>% as.double
-    las@data$VoxelID = vx
-    las@data = merge(las@data, vtm, by='VoxelID', sort=F)
+    vtm$VoxelID <- names(idx) %>% as.double
+    las@data$VoxelID <- vx
+    las@data <- merge(las@data, vtm, by='VoxelID', sort=F)
     las@data = las@data[,-c('VoxelID')]
-    las@data$VoxelID = vx
-    las = cleanFields(las, pick_metrics$names)
+    las@data$VoxelID <- vx
+    las <- cleanFields(las, pick_metrics$names)
 
     if(hasField(las,'KnnDensity')){
-      las@data$KnnDensity = las$N / (d^3)
+      las@data$KnnDensity <- las$N / (d^3)
     }
 
     if(hasField(las,'KnnDensity2d')){
-      las@data$KnnDensity2d = las$N / (d^2)
+      las@data$KnnDensity2d <- las$N / (d^2)
     }
 
     if(special_case){
-      las@data$N = NULL
+      las@data$N <- NULL
     }
 
     return(las)
@@ -163,16 +163,16 @@ ptm.voxel = function(d = .1, exact=FALSE){
 #' @param k \code{numeric} - number of nearest points to search per neighborhood.
 #' @param r \code{numeric} - search radius limit. If \code{r == 0}, no distance limit is applied.
 #' @export
-ptm.knn = function(k = 20, r = 0){
+ptm.knn <- function(k = 20, r = 0){
 
   if(!is.numeric(k) || !is.numeric(r)) stop('k and r must be numbers')
   if(k < 3) stop('k must be a number larger than 3')
   if(r < 0) stop('r must be 0 or higher')
 
-  func = function(las, which_metrics){
+  func <- function(las, which_metrics){
 
-    k = nabor::knn(las %>% las2xyz, k = k+1, radius = r)
-    ptm = ptmStatistics(las, k, which_metrics)
+    k <- nabor::knn(las %>% las2xyz, k = k+1, radius = r)
+    ptm <- ptmStatistics(las, k, which_metrics)
     las@data[,colnames(ptm)] = ptm
     return(las)
   }
@@ -210,17 +210,17 @@ ptm.knn = function(k = 20, r = 0){
 #' @template reference-wang
 #' @template reference-zhou
 #' @examples
-#' file = system.file("extdata", "pine.laz", package="TreeLS")
-#' tls = readTLS(file, select='xyz')
+#' file <- system.file("extdata", "pine.laz", package="TreeLS")
+#' tls <- readTLS(file, select='xyz')
 #'
-#' all_metrics = fastPointMetrics.available()
+#' all_metrics <- fastPointMetrics.available()
 #' my_metrics = all_metrics[c(1,4,6)]
 #'
-#' tls = fastPointMetrics(tls, ptm.knn(10), my_metrics)
+#' tls <- fastPointMetrics(tls, ptm.knn(10), my_metrics)
 #' head(tls@data)
 #' plot(tls, color='Linearity')
 #' @export
-fastPointMetrics = function(las, method = ptm.voxel(), which_metrics = ENABLED_POINT_METRICS$names){
+fastPointMetrics <- function(las, method = ptm.voxel(), which_metrics = ENABLED_POINT_METRICS$names){
 
   isLAS(las)
 
@@ -239,14 +239,14 @@ fastPointMetrics = function(las, method = ptm.voxel(), which_metrics = ENABLED_P
 #' @return \code{character} vector of all metrics.
 #' @template section-point-metrics
 #' @examples
-#' m = fastPointMetrics.available()
+#' m <- fastPointMetrics.available()
 #' length(m)
 #' @export
-fastPointMetrics.available = function(enable = ENABLED_POINT_METRICS$names){
+fastPointMetrics.available <- function(enable = ENABLED_POINT_METRICS$names){
   if(typeof(enable) != 'character') enable = POINT_METRICS_NAMES[enable]
-  enable_metrics = ptmMetricsLog(enable)
+  enable_metrics <- ptmMetricsLog(enable)
   ENABLED_POINT_METRICS$names <- enable_metrics$names
-  temp = data.frame(INDEX = 1:length(POINT_METRICS_NAMES), METRIC = POINT_METRICS_NAMES, ENABLED = enable_metrics$log)
+  temp <- data.frame(INDEX = 1:length(POINT_METRICS_NAMES), METRIC = POINT_METRICS_NAMES, ENABLED = enable_metrics$log)
   print(temp)
   cat('\n')
   return(invisible(POINT_METRICS_NAMES))

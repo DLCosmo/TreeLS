@@ -22,12 +22,12 @@
 #' @description This function is meant to be used inside \code{\link{tlsSample}}. It selects one random point per voxel at a given spatial resolution.
 #' @param spacing \code{numeric} - voxel side length, in point cloud units.
 #' @export
-smp.voxelize = function(spacing = 0.05){
+smp.voxelize <- function(spacing = 0.05){
 
   if(spacing <= 0)
     stop('spacing must be a positive number')
 
-  func = function(las){
+  func <- function(las){
     las %>% las2xyz %>% thinCloud(spacing) %>% return()
   }
 
@@ -41,7 +41,7 @@ smp.voxelize = function(spacing = 0.05){
 #' @param p \code{numeric} - sampling probability (from 0 to 1).
 #' @importFrom stats rbinom
 #' @export
-smp.randomize = function(p = 0.5){
+smp.randomize <- function(p = 0.5){
 
   if(p <= 0)
     stop('p must be a positive number')
@@ -49,9 +49,9 @@ smp.randomize = function(p = 0.5){
   if(p >= 1)
     stop('p must be a number between 0 and 1 for random sampling')
 
-  func = function(las){
-    n = nrow(las@data)
-    keep = rbinom(n, 1, p) == 1
+  func <- function(las){
+    n <- nrow(las@data)
+    keep <- rbinom(n, 1, p) == 1
     return(keep)
   }
 
