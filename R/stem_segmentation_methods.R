@@ -39,7 +39,7 @@ sgt.ransac.circle <- function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -79,7 +79,7 @@ sgt.ransac.circle <- function(tol=0.1, n = 10, conf = 0.99, inliers = 0.8){
       estimates %<>% merge(z, by='Segment')
 
       # Segment <- NULL
-      estimates = estimates[order(Segment)]
+      estimates <- estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
 
@@ -132,7 +132,7 @@ sgt.ransac.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -173,7 +173,7 @@ sgt.ransac.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9){
       estimates %<>% merge(z, by='Segment') %>% merge(poses, by='Segment')
 
       # Segment <- NULL
-      estimates = estimates[order(Segment)]
+      estimates <- estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
 
@@ -222,7 +222,7 @@ sgt.irls.circle <- function(tol=0.1, n = 500){
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -259,7 +259,7 @@ sgt.irls.circle <- function(tol=0.1, n = 500){
       estimates %<>% merge(z, by='Segment')
 
       # Segment <- NULL
-      estimates = estimates[order(Segment)]
+      estimates <- estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
 
@@ -308,7 +308,7 @@ sgt.irls.cylinder <- function(tol=0.1, n = 100){
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -346,7 +346,7 @@ sgt.irls.cylinder <- function(tol=0.1, n = 100){
       estimates %<>% merge(z, by='Segment') %>% merge(poses, by='Segment')
 
       # Segment <- NULL
-      estimates = estimates[order(Segment)]
+      estimates <- estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
 
@@ -398,7 +398,7 @@ sgt.bf.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev =
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -439,7 +439,7 @@ sgt.bf.cylinder <- function(tol=0.1, n = 10, conf = 0.95, inliers = 0.9, z_dev =
       estimates %<>% merge(z, by='Segment')
 
       # Segment <- NULL
-      estimates = estimates[order(Segment)]
+      estimates <- estimates[order(Segment)]
 
       estimates %<>% setAttribute("single_stem_dt")
 

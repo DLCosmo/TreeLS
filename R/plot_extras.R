@@ -11,11 +11,11 @@ bringToOrigin <- function(las, x){
   if(!(length(x) == 2 && is.numeric(x)[1])) return(las)
 
   if(class(las)[1] == 'LAS'){
-    las@data$X = las@data$X - x[1]
-    las@data$Y = las@data$Y - x[2]
+    las@data$X <- las@data$X - x[1]
+    las@data$Y <- las@data$Y - x[2]
   }else{
-    las$X = las$X - x[1]
-    las$Y = las$Y - x[2]
+    las$X <- las$X - x[1]
+    las$Y <- las$Y - x[2]
   }
 
   return(las)
@@ -257,7 +257,7 @@ tlsPlot.dh.circle <- function(las, x, y, r, clear=F, wired=T, col='white'){
 }
 
 tlsPlot.dh.3d <- function(las, rings, rVec, r, clear=T, wired=T, col='white'){
-  is_las = class(las)[1] == 'LAS'
+  is_las <- class(las)[1] == 'LAS'
 
   if(clear) clear3d() # else rgl.open()
   bg3d('black') ; axes3d(col='white')
@@ -300,7 +300,7 @@ add_segmentIDs <- function(x, las, ...){
   by <- 'Segment'
   if('TreeID' %in% colnames(las)){
     by <- c('TreeID', by)
-    las = las[TreeID > 0]
+    las <- las[TreeID > 0]
   }
 
   las = las[,.(X=mean(X),Y=mean(Y),Z=mean(Z)),by=by]

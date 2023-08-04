@@ -58,7 +58,7 @@ stm.hough <- function(h_step=0.5, max_d=0.5, h_base = c(1,2.5), pixel_size=0.025
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
@@ -147,7 +147,7 @@ stm.eigen.knn <- function(h_step = .5, max_curvature = .1, max_verticality = 10,
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
@@ -215,7 +215,7 @@ stm.eigen.knn <- function(h_step = .5, max_curvature = .1, max_verticality = 10,
     }
 
     keepcols <- !(colnames(las@data) %in% c('Votes', 'Radius', 'MaxVotes'))
-    keepcols = colnames(las@data)[keepcols]
+    keepcols <- colnames(las@data)[keepcols]
     las@data = las@data[,keepcols,with=F]
     las@data = merge(las@data, votes[,.(PointID, Votes, Radius)], by='PointID', sort=F, all.x=T)
     las@data[!las@data$Stem, c('Votes', 'Radius')] = 0
@@ -273,7 +273,7 @@ stm.eigen.voxel <- function(h_step = .5, max_curvature = .1, max_verticality = 1
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
@@ -330,7 +330,7 @@ stm.eigen.voxel <- function(h_step = .5, max_curvature = .1, max_verticality = 1
     }
 
     keepcols <- !(colnames(las@data) %in% c('Votes', 'Radius', 'MaxVotes'))
-    keepcols = colnames(las@data)[keepcols]
+    keepcols <- colnames(las@data)[keepcols]
     las@data = las@data[,keepcols,with=F]
     las@data = merge(las@data, votes[,.(VoxelID, Votes, Radius)], by='VoxelID', sort=F, all.x=T)
     las@data[!las@data$Stem, c('Votes', 'Radius')] = 0

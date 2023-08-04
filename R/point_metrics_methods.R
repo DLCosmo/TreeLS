@@ -129,7 +129,7 @@ ptm.voxel <- function(d = .1, exact=FALSE){
     vtm <- voxelMetrics(las2xyz(las), idx, pick_metrics$log) %>% do.call(what = rbind) %>% as.data.table
     colnames(vtm) = pick_metrics$names
 
-    keep_names = colnames(las@data)[ !( colnames(las@data) %in% colnames(vtm) ) ]
+    keep_names <- colnames(las@data)[ !( colnames(las@data) %in% colnames(vtm) ) ]
     las@data = las@data[, keep_names, with=F]
     vtm$VoxelID <- names(idx) %>% as.double
     las@data$VoxelID <- vx

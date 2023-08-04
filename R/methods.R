@@ -180,7 +180,7 @@ hasField <- function(las, field_name){
 }
 
 cleanFields <- function(las, field_names){
-  is_las = class(las)[1] == 'LAS'
+  is_las <- class(las)[1] == 'LAS'
   for(i in field_names){
     temp = if(is_las) las@data[,i,with=F] else las[,i,with=F]
     temp <- unlist(temp)
@@ -268,7 +268,7 @@ splitByIndex <- function(las, var='Z', max_size = 1E6){
   if(npts > max_size){
     nparts <- ceiling(npts/max_size)
     probs <- seq(0, 1, by = 1/nparts)
-    probs = probs[probs > 0 & probs < 1]
+    probs <- probs[probs > 0 & probs < 1]
     zqts = quantile(las[[var]], probs) %>% as.double
     hs = c(min(las[[var]])-1, zqts, max(las$Z)+1)
     zclass = cut(las[[var]], hs) %>% as.integer
@@ -359,7 +359,7 @@ writeTLS <- function(las, file, col_names=NULL, index=FALSE){
   isLAS(las)
 
   fields <- names(las@data)
-  fields = fields[!(fields %in% DEFAULT_LASATTRIBUTES)]
+  fields <- fields[!(fields %in% DEFAULT_LASATTRIBUTES)]
 
   if(!is.null(col_names)){
     if(!all(col_names %in% names(las@data))){
@@ -610,7 +610,7 @@ treeMap.positions <- function(map, plot=TRUE){
     }
 
     pos = map@data[,.(X=median(X), Y=median(Y)),by=TreeID]
-    pos = pos[order(TreeID)]
+    pos <- pos[order(TreeID)]
 
     pos %<>% setAttribute('tree_map_dt')
   }
@@ -647,9 +647,9 @@ treeMap.merge <- function(map, d=.2){
   if(nrow(nxy) <= 1) return(map)
   nn = knn(nxy[,-1], k=2)
   dst = nn$nn.dists[,2] %>% sort %>% unique
-  step = dst[-1] - dst[-length(dst)]
+  step <- dst[-1] - dst[-length(dst)]
   lg_step <- which(step > d)
-  lg_step = lg_step[ lg_step/length(step) < .5 ]
+  lg_step <- lg_step[ lg_step/length(step) < .5 ]
 
   if(length(lg_step) == 0) return(map)
 
@@ -893,7 +893,7 @@ tlsRotate <- function(las, manual = TRUE){
   las@data[,c('X','Y','Z')] = (las2xyz(las) %*% rot) %*% xy_back %>% as.data.table
 
   if (manual) {
-    groundRotated = las@data[idx]
+    groundRotated <- las@data[idx]
     if (groundRotated[,.(mean(Z))] >=  las@data[,.(mean(Z))])
       las@data[,c('X','Y','Z')] = las2xyz(las) %*% flip_180%>% as.data.table
   }
@@ -992,9 +992,9 @@ tlsTransform <- function(las, xyz = c('X', 'Y', 'Z'), bring_to_origin = FALSE, r
 
     mincoords = las@data[,.(min(X), min(Y), min(Z))] %>% as.double
 
-    las@data$X = las@data$X - mincoords[1]
-    las@data$Y = las@data$Y - mincoords[2]
-    las@data$Z = las@data$Z - mincoords[3]
+    las@data$X <- las@data$X - mincoords[1]
+    las@data$Y <- las@data$Y - mincoords[2]
+    las@data$Z <- las@data$Z - mincoords[3]
   }
 
   return(las)
@@ -1110,7 +1110,7 @@ shapeFit <- function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -1125,7 +1125,7 @@ shapeFit <- function(stem_segment=NULL, shape='circle', algorithm='ransac', n=10
   if(shape == 'circle'){
     func <- function(las){
       fit <- circleFit(las, algorithm, n, inliers, conf, n_best)
-      fit = fit[1:4]
+      fit <- fit[1:4]
       colnames(fit) = c('X', 'Y', 'Radius', 'Error')
       return(as.data.table(fit))
     }
@@ -1190,7 +1190,7 @@ tlsInventory <- function(las, dh = 1.3, dw = 0.5, hp = 1, d_method = shapeFit(sh
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -1261,8 +1261,8 @@ tlsPlot <- function(..., fast=FALSE, tree_id = NULL, segment = NULL){
   .tls_dots_list = as.list(match.call(expand.dots = F))[['...']]
 
   for(i in 1:length(.tls_dots_list)){
-    obj = .tls_dots_list[[i]] %>% as.character %>% get
-    tp = class(obj)[1]
+    obj <- .tls_dots_list[[i]] %>% as.character %>% get
+    tp <- class(obj)[1]
     if(!(tp %in% c('LAS', 'data.table', 'data.frame'))){
       stop('input data must be either LAS or data.table objects.')
     }
@@ -1376,7 +1376,7 @@ shapeFit.forks <- function(dlas, pixel_size = .02, max_d = .4, votes_percentile 
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(!is.numeric(val))
       stop( i %>% paste('must be Numeric') )
@@ -1428,7 +1428,7 @@ shapeFit.forks <- function(dlas, pixel_size = .02, max_d = .4, votes_percentile 
   estimates <- data.frame()
   dlas@data$StemID <- 0
   for(i in 1:nrow(centers)){
-    temp = centers[i]
+    temp <- centers[i]
 
     dsts <- dlas@data %$% sqrt( (X - temp$x)^2 + (Y - temp$y)^2 )
     pts <- dsts < temp$r + 2*pixel_size & dlas@data$StemID == 0
@@ -1457,7 +1457,7 @@ shapeFit.forks <- function(dlas, pixel_size = .02, max_d = .4, votes_percentile 
     est$ratioInner <- den_inner / den_strip
     est$ratioOuter <- den_outer / den_strip
     est$StemID <- i
-    est$TreeID = dlas$TreeID[1]
+    est$TreeID <- dlas$TreeID[1]
     est$score <- 1
 
     if(est$ratioInner > 1){

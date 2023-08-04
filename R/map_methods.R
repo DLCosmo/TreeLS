@@ -71,7 +71,7 @@ map.hough <- function(min_h = 1, max_h = 3, h_step = 0.5, pixel_size = 0.025, ma
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
@@ -141,7 +141,7 @@ map.eigen.knn <- function(max_curvature = .1, max_verticality = 10, max_mean_dis
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
@@ -240,7 +240,7 @@ map.eigen.voxel <- function(max_curvature = .15, max_verticality = 15, voxel_spa
   )
 
   for(i in names(params)){
-    val = params[[i]]
+    val <- params[[i]]
 
     if(length(val) != 1)
       stop( i %>% paste('must be of length 1') )
