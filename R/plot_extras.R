@@ -51,13 +51,13 @@ tfBruteForceCoordinates <- function(dt, ax, ay){
     par3d(userMatrix = start$userMatrix %*% t(mouseMatrix) )
   }
   rgl.setMouseCallbacks(button, begin, update)
-  # cat("Pan set on button", button, "of rgl device",rgl.cur(),"\n")
+  # cat("Pan set on button", button, "of rgl device",cur3d(),"\n")
 }
 
 # --- Hidden function copied from lidR's source code (reference: https://github.com/Jean-Romain/lidR):
 # From rgl.setMouseCallbacks man page
 # nocov start
-.pan3d <- function(button=2, dev = rgl::rgl.cur(), subscene = rgl::currentSubscene3d(dev))
+.pan3d <- function(button=2, dev = rgl::cur3d(), subscene = rgl::currentSubscene3d(dev))
 {
   start <- list()
 
@@ -180,11 +180,11 @@ tlsPlot.dh.cylinder <- function(las, rho, theta, phi, alpha, r, clear=F, wired=T
   if(!is_las) return(NULL)
 
   # cols <- if(hasField(las, 'gpstime')) set.colors(las$gpstime, las$gpstime %>% unique %>% length %>% height.colors) else 'darkgrey'
-  # if(clear) clear3d() # else rgl.open()
+  # if(clear) clear3d() # else open3d()
   # bg3d('black') ; axes3d(col='white')
   # lines3d(data.frame(meds+q-a*height, meds+q+a*height) %>% t, color='darkred', lwd=3)
   # lines3d(data.frame(meds, meds+q) %>% t, color='blue', lwd=3)
-  # rgl.points(pt3d, color=cols)
+  # points3d(pt3d, color=cols)
   #
   # cyl <- cylinder3d(rbind(meds+q-a*height, meds+q+a*height), radius=r, sides=36)
   # wire3d(cyl, color='white', lwd=3)
@@ -233,11 +233,11 @@ tlsPlot.dh.circle <- function(las, x, y, r, clear=F, wired=T, col='white'){
   if(!is_las) return(NULL)
 
   # cols <- if(hasField(las, 'gpstime')) set.colors(las$gpstime, las$gpstime %>% unique %>% length %>% height.colors) else 'darkgrey'
-  # if(clear) clear3d() # else rgl.open()
+  # if(clear) clear3d() # else open3d()
   # bg3d('black') ; axes3d(col='white')
   # lines3d(data.frame(cbase, ctop) %>% t, color='darkred', lwd=3)
   # lines3d(data.frame(ccen, crad) %>% t, color='blue', lwd=3)
-  # rgl.points(pt3d, color=cols)
+  # points3d(pt3d, color=cols)
   #
   # cyl <- cylinder3d(rbind(cbase, ctop), radius=r, sides=36)
   # wire3d(cyl, color='white', lwd=3)
@@ -259,14 +259,14 @@ tlsPlot.dh.circle <- function(las, x, y, r, clear=F, wired=T, col='white'){
 tlsPlot.dh.3d <- function(las, rings, rVec, r, clear=T, wired=T, col='white'){
   is_las <- class(las)[1] == 'LAS'
 
-  if(clear) clear3d() # else rgl.open()
+  if(clear) clear3d() # else open3d()
   bg3d('black') ; axes3d(col='white')
   lines3d(t(rings), color='darkred', lwd=3)
   lines3d(t(rVec), color='blue', lwd=3)
 
   if(is_las){
     cols <- if(hasField(las, 'gpstime')) set.colors(las$gpstime, las$gpstime %>% unique %>% length %>% height.colors) else 'darkgrey'
-    rgl.points(las %>% las2xyz, color=cols)
+    points3d(las %>% las2xyz, color=cols)
   }
 
   cyl <- cylinder3d(t(rings), radius=r, sides=36)
@@ -337,7 +337,7 @@ add_treeMap <- function(x, las, ...){
   h <- 1.3
   if(hasAttribute(las, 'tree_map')){
     if(hasField(las, 'TreePosition')){
-      las %>% bringToOrigin(x) %>% las2xyz %>% rgl.points(...)
+      las %>% bringToOrigin(x) %>% las2xyz %>% points3d(...)
       return(NULL)
     }
     h <- mean(las$Z)
@@ -359,7 +359,7 @@ add_treePoints <- function(x, las, color_func=pastel.colors, ...){
   las <- bringToOrigin(las, x)
   colors <- las$TreeID %>% unique %>% length %>% color_func
   colors <- set.colors(las$TreeID, colors)
-  las@data %$% rgl.points(X,Y,Z,color=colors,...)
+  las@data %$% points3d(X,Y,Z,color=colors,...)
 }
 
 #' @rdname tlsPlot
@@ -371,7 +371,7 @@ add_stemPoints <- function(x, las, ...){
   }
   las <- filter_poi(las, Stem)
   las <- bringToOrigin(las, x)
-  las@data %$% rgl.points(X,Y,Z,...)
+  las@data %$% points3d(X,Y,Z,...)
 }
 
 #' @rdname tlsPlot
