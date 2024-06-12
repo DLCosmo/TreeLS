@@ -858,11 +858,15 @@ tlsRotate <- function(las, manual = TRUE){
   isLAS(las)
 
   if (manual) {
-    plot(las)
+    data <- las@data[, c("X", "Y", "Z")]
+    colors <- (data$Z - min(data$Z)) / (max(data$Z) - min(data$Z)) * 7 + 1
+    open3d()
+    plot3d(data, col = colors)
+    aspect3d("iso")
     f <- select3d(button = "right", dev = cur3d())
     close3d()
-    idx <- las@data[,c('X','Y','Z')] %>% f()
-    ground <- las@data[,c('X','Y','Z')][idx]
+    idx <- f(data)
+    ground <- data[idx]
 
   }else{
     ground = las@data[,c('X','Y','Z')] %>%
